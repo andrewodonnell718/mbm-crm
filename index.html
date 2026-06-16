@@ -137,6 +137,9 @@ button:active{transform:scale(0.97)}
 .call-item{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px}
 .call-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--burn);line-height:1;min-width:28px}
 
+/* ── Strategy header ── */
+.strategy-header{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;color:var(--burn);margin:16px 0 8px;padding-top:14px;border-top:1px solid var(--border);display:block}
+
 /* ── Toast ── */
 .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--black);color:var(--white);padding:10px 20px;border-radius:var(--pill);font-size:12px;font-weight:600;opacity:0;transition:all 0.3s;z-index:300;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -856,6 +859,125 @@ async function generateNextAction(contact, allContacts) {
   } catch {}
 }
 
+// ══════════════════════════════════════
+// BUSINESS INTELLIGENCE ENGINE
+// ══════════════════════════════════════
+function openIntelProfile(id) {
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(function(x){ return x.id === id; });
+  if (!c) return;
+  document.getElementById('ip-contact-id').value = id;
+  document.getElementById('ip-contact-name').textContent = c.name + (c.business ? ' — ' + c.business : '');
+  document.getElementById('strategy-contact-name').textContent = c.name + (c.business ? ' · ' + c.business : '');
+  // Load existing profile if any
+  const p = c.intel_profile || {};
+  document.getElementById('ip-industry').value = p.industry || c.business || '';
+  document.getElementById('ip-revenue').value = p.revenue || '';
+  document.getElementById('ip-challenge').value = p.challenge || '';
+  document.getElementById('ip-goal').value = p.goal || '';
+  document.getElementById('ip-budget').value = p.budget || '';
+  document.getElementById('ip-tried').value = p.tried || '';
+  document.getElementById('ip-context').value = p.context || '';
+  document.getElementById('ip-has-website').checked = p.has_website || !!c.website;
+  document.getElementById('ip-has-google').checked = p.has_google || false;
+  document.getElementById('ip-has-facebook').checked = p.has_facebook || !!c.facebook;
+  document.getElementById('ip-has-ads').checked = p.has_ads || false;
+  document.getElementById('ip-has-instagram').checked = p.has_instagram || !!c.instagram;
+  document.getElementById('ip-has-seo').checked = p.has_seo || false;
+  openModal('intel-profile-modal');
+}
+
+async function saveIntelProfile() {
+  const id = parseInt(document.getElementById('ip-contact-id').value);
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(function(x){ return x.id === id; });
+  if (!c) return;
+  c.intel_profile = {
+    industry: document.getElementById('ip-industry').value.trim(),
+    revenue: document.getElementById('ip-revenue').value,
+    challenge: document.getElementById('ip-challenge').value,
+    goal: document.getElementById('ip-goal').value.trim(),
+    budget: document.getElementById('ip-budget').value,
+    tried: document.getElementById('ip-tried').value.trim(),
+    context: document.getElementById('ip-context').value.trim(),
+    has_website: document.getElementById('ip-has-website').checked,
+    has_google: document.getElementById('ip-has-google').checked,
+    has_facebook: document.getElementById('ip-has-facebook').checked,
+    has_ads: document.getElementById('ip-has-ads').checked,
+    has_instagram: document.getElementById('ip-has-instagram').checked,
+    has_seo: document.getElementById('ip-has-seo').checked,
+    updated: new Date().toISOString()
+  };
+  lsSet('contacts', contacts);
+  await saveContact_DB(c);
+  allContacts = contacts;
+  toast('Profile saved');
+}
+
+async function generateStrategy() {
+  const id = parseInt(document.getElementById('ip-contact-id').value);
+  await saveIntelProfile();
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(function(x){ return x.id === id; });
+  if (!c) return;
+  const p = c.intel_profile || {};
+
+  const logHistory = (c.log || []).slice(0,5).map(function(l){ return l.date + ' (' + l.type + '): ' + l.notes; }).join(' | ');
+
+  const presence = [
+    p.has_website ? 'has a website' : 'NO website',
+    p.has_google ? 'has Google Business Profile' : 'NOT on Google Maps',
+    p.has_facebook ? 'has Facebook page' : 'no Facebook',
+    p.has_ads ? 'running ads' : 'not running ads',
+    p.has_instagram ? 'has Instagram' : 'no Instagram',
+    p.has_seo ? 'doing SEO' : 'no SEO'
+  ].join(', ');
+
+  const situation = 'PROSPECT: ' + c.name + (c.business ? ', ' + c.business : '') + '. Industry: ' + (p.industry || 'unknown') + '. Revenue: ' + (p.revenue || 'unknown') + '. Digital presence: ' + presence + '. Biggest challenge: ' + (p.challenge || 'unknown') + '. Goal: ' + (p.goal || 'not specified') + '. Budget: ' + (p.budget || 'unknown') + '. Tried: ' + (p.tried || 'nothing') + '. Context: ' + (p.context || 'none') + '. Conversation history: ' + (logHistory || 'none') + '.';
+
+  const structure = 'Structure your response with these exact headers: ## SITUATION ASSESSMENT (2-3 sentences on where they are now). ## BIGGEST OPPORTUNITY (the single highest-leverage thing MBM can do — be hyper specific). ## 90-DAY GAME PLAN (Phase 1 week 1-2, Phase 2 week 3-6, Phase 3 week 7-12). ## WHAT TO SAY NEXT (exact talking points for Andrew to use in next conversation). ## INVESTMENT RECOMMENDATION (what to charge, what it includes, how to frame the value). ## RED FLAGS (honest assessment of what could go wrong).';
+
+  const prompt = 'You are a senior digital marketing strategist for Motion by Movements, a done-for-you digital marketing agency run by Andrew ODonnell in St Louis. Analyze this prospect and build a specific prioritized strategy. ' + situation + ' ' + structure;
+
+  closeModal('intel-profile-modal');
+  document.getElementById('strategy-output').innerHTML = '<div style="text-align:center;padding:30px 0"><div style="font-size:28px;margin-bottom:12px">🧠</div><div style="font-size:13px;color:var(--text2)">Analyzing ' + c.name + '...</div></div>';
+  openModal('strategy-modal');
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: prompt, type: 'coach' })
+    });
+    const data = await res.json();
+    const raw = (data.result || '').trim();
+
+    // Format the output
+    const formatted = raw.replace(/## ([^\n]+)/g, '<div class="strategy-header">$1</div>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '</p><p style="margin-bottom:10px">').replace(/\n/g, '<br>');
+
+    document.getElementById('strategy-output').innerHTML = '<div style="font-size:13px;line-height:1.8;color:var(--text)"><p style="margin-bottom:10px">' + formatted + '</p></div>';
+
+    // Save strategy summary to contact
+    const summaryMatch = raw.match(/BIGGEST OPPORTUNITY/);
+    const summary = summaryMatch ? raw.slice(raw.indexOf('BIGGEST OPPORTUNITY') + 20, raw.indexOf('BIGGEST OPPORTUNITY') + 300).trim() : raw.slice(0, 200);
+    // duplicate removed
+    // summary already declared above
+    const idx = contacts2.findIndex(function(x){ return x.id === id; });
+    if (idx >= 0) {
+      contacts2[idx].strategy = raw;
+      contacts2[idx].strategy_summary = summary;
+      contacts2[idx].strategy_date = new Date().toISOString().split('T')[0];
+      lsSet('contacts', contacts2);
+      await saveContact_DB(contacts2[idx]);
+      allContacts = contacts2;
+      renderContacts(allContacts);
+      renderPipeline(allContacts);
+    }
+  } catch(e) {
+    document.getElementById('strategy-output').innerHTML = '<div class="empty">Could not generate strategy. Check your connection and try again.</div>';
+  }
+}
+
 function toggleEdit(id) {
   const el = document.getElementById('edit-' + id);
   if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
@@ -943,7 +1065,11 @@ function contactCardHTML(c) {
     + '<button class="btn-burn btn-sm" style="flex:1;min-width:80px" onclick="openLogCall(' + c.id + ')">Log contact</button>'
     + '<button class="btn-danger btn-sm" onclick="deleteContact(' + c.id + ')" style="padding:8px 10px;text-transform:none;letter-spacing:0">✕</button>'
     + '</div>'
-    + '<button class="btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="toggleEdit(' + c.id + ')">✏ Edit contact</button>'
+    + '<div style="display:flex;gap:6px;margin-top:8px">'
+    + '<button class="btn-ghost btn-sm" style="flex:1" onclick="toggleEdit(' + c.id + ')">✏ Edit</button>'
+    + '<button class="btn-black btn-sm" style="flex:1" onclick="openIntelProfile(' + c.id + ')">🧠 Strategy</button>'
+    + '</div>'
+    + (c.strategy ? '<div style="margin-top:10px;padding:12px;background:linear-gradient(135deg,rgba(200,75,17,0.06),rgba(200,75,17,0.02));border-radius:var(--r-sm);border-left:3px solid var(--burn)"><div class="lbl lbl-burn" style="margin-bottom:6px">AI Strategy</div><div style="font-size:12px;color:var(--text);line-height:1.7">' + c.strategy_summary + '</div><button class="btn-sm btn-ghost" style="margin-top:8px;font-size:10px" onclick="openIntelProfile(' + c.id + ')">View full strategy</button></div>' : '')
     + '<div id="edit-' + c.id + '" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">'
     + '<input type="text" placeholder="Name" id="en-' + c.id + '" value="' + (c.name||'') + '" style="margin-bottom:8px">'
     + '<input type="text" placeholder="Business" id="eb-' + c.id + '" value="' + (c.business||'') + '" style="margin-bottom:8px">'
@@ -1419,5 +1545,86 @@ window.showMain = function() {
 
 init();
 </script>
+
+<!-- ── BUSINESS INTEL MODAL ── -->
+<div class="modal-bg" id="intel-profile-modal">
+  <div class="modal" style="max-height:85vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.08em;margin-bottom:4px" id="ip-contact-name">Business Profile</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px">Complete this to unlock AI strategy recommendations</div>
+    <input type="hidden" id="ip-contact-id">
+
+    <div class="lbl">Industry / type of business</div>
+    <input type="text" id="ip-industry" placeholder="e.g. Welding, Contracting, Restaurant, Retail">
+
+    <div class="lbl">Annual revenue (approximate)</div>
+    <select id="ip-revenue" style="margin-bottom:10px">
+      <option value="">Select range</option>
+      <option value="under100k">Under $100k</option>
+      <option value="100-500k">$100k - $500k</option>
+      <option value="500k-1m">$500k - $1M</option>
+      <option value="1m-5m">$1M - $5M</option>
+      <option value="over5m">Over $5M</option>
+    </select>
+
+    <div class="lbl">Current digital presence</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="ip-has-website" style="width:auto;margin-bottom:0"> Website</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="ip-has-google" style="width:auto;margin-bottom:0"> Google Business</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="ip-has-facebook" style="width:auto;margin-bottom:0"> Facebook page</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="ip-has-ads" style="width:auto;margin-bottom:0"> Running ads</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="ip-has-instagram" style="width:auto;margin-bottom:0"> Instagram</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="ip-has-seo" style="width:auto;margin-bottom:0"> SEO / ranking</label>
+    </div>
+
+    <div class="lbl">Biggest business challenge right now</div>
+    <select id="ip-challenge" style="margin-bottom:10px">
+      <option value="">Select main challenge</option>
+      <option value="not-enough-leads">Not enough leads / new customers</option>
+      <option value="no-online-presence">Invisible online — people can't find them</option>
+      <option value="bad-reputation">Negative reviews or bad reputation online</option>
+      <option value="losing-to-competitors">Losing jobs to competitors</option>
+      <option value="inconsistent-revenue">Inconsistent / seasonal revenue</option>
+      <option value="no-referral-system">No referral or repeat customer system</option>
+      <option value="too-busy-no-systems">Too busy, no systems or processes</option>
+      <option value="wants-to-grow">Doing well, wants to scale</option>
+    </select>
+
+    <div class="lbl">Primary goal in next 90 days</div>
+    <input type="text" id="ip-goal" placeholder="e.g. Get 10 new customers, rank #1 on Google, launch online store">
+
+    <div class="lbl">Budget for marketing (monthly)</div>
+    <select id="ip-budget" style="margin-bottom:10px">
+      <option value="">Select range</option>
+      <option value="under500">Under $500/mo</option>
+      <option value="500-1500">$500 - $1,500/mo</option>
+      <option value="1500-3000">$1,500 - $3,000/mo</option>
+      <option value="over3000">$3,000+/mo</option>
+      <option value="unknown">Not sure yet</option>
+    </select>
+
+    <div class="lbl">What have they already tried?</div>
+    <textarea id="ip-tried" placeholder="e.g. Tried Facebook ads 2 years ago, didn't work. Has a website but gets no traffic. Did Google ads briefly." style="min-height:60px;margin-bottom:10px"></textarea>
+
+    <div class="lbl">Additional context</div>
+    <textarea id="ip-context" placeholder="Anything else the AI should know — owner's personality, urgency, referral source details, specific concerns..." style="min-height:60px;margin-bottom:16px"></textarea>
+
+    <button class="btn-burn" style="width:100%;margin-bottom:8px" onclick="saveIntelProfile()">Save profile</button>
+    <button class="btn-burn" style="width:100%;margin-bottom:8px;background:var(--black);border-color:var(--black)" onclick="generateStrategy()">Generate AI strategy</button>
+    <button class="btn-ghost" style="width:100%" onclick="closeModal('intel-profile-modal')">Close</button>
+  </div>
+</div>
+
+<!-- ── STRATEGY OUTPUT MODAL ── -->
+<div class="modal-bg" id="strategy-modal">
+  <div class="modal" style="max-height:90vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.08em;color:var(--burn);margin-bottom:4px">AI Strategy</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px" id="strategy-contact-name"></div>
+    <div id="strategy-output"><div class="empty">Generating strategy...</div></div>
+    <button class="btn-ghost" style="width:100%;margin-top:16px" onclick="closeModal('strategy-modal')">Close</button>
+  </div>
+</div>
+
 </body>
 </html>
