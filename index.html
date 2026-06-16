@@ -165,7 +165,7 @@ button:active{transform:scale(0.97)}
     <button class="btn-burn" style="width:100%;padding:14px;font-size:13px" onclick="doLogin()">Sign in</button>
     <div id="login-error" style="color:var(--red);font-size:12px;text-align:center;margin-top:10px;display:none"></div>
     <div style="text-align:center;margin-top:20px">
-      <button class="btn-ghost btn-sm" onclick="showSignup()">Create account</button>
+      <button class="btn-ghost btn-sm" onclick="showSignup()" style="margin-top:16px;width:100%;padding:12px">Create account</button>
     </div>
   </div>
 </div>
@@ -552,8 +552,7 @@ function updateWorkspaceIndicator() {
 // AUTH
 // ══════════════════════════════════════
 function showSignup() {
-  closeModal('signup-modal');
-  setTimeout(() => openModal('signup-modal'), 10);
+  openModal('signup-modal');
 }
 
 async function doLogin() {
