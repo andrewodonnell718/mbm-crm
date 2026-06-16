@@ -224,6 +224,12 @@ button:active{transform:scale(0.97)}
     </select>
     <div class="lbl">Source</div>
     <input type="text" id="ac-source" placeholder="How did you find them? Referral from who?">
+    <div class="lbl">Website</div>
+    <input type="url" id="ac-website" placeholder="https://theirbusiness.com">
+    <div class="g2" style="margin-bottom:10px">
+      <div><div class="lbl" style="margin-bottom:4px">Facebook</div><input type="text" id="ac-facebook" placeholder="facebook.com/..." style="margin-bottom:0"></div>
+      <div><div class="lbl" style="margin-bottom:4px">Instagram</div><input type="text" id="ac-instagram" placeholder="@handle" style="margin-bottom:0"></div>
+    </div>
     <div class="lbl">Notes</div>
     <textarea id="ac-notes" placeholder="What do they need? Context?" style="margin-bottom:16px"></textarea>
     <button class="btn-burn" style="width:100%;margin-bottom:10px" onclick="saveContact()">Save contact</button>
@@ -726,6 +732,9 @@ async function saveContact() {
     email: document.getElementById('ac-email').value.trim(),
     stage: document.getElementById('ac-stage').value,
     source: document.getElementById('ac-source').value.trim(),
+    website: document.getElementById('ac-website').value.trim(),
+    facebook: document.getElementById('ac-facebook').value.trim(),
+    instagram: document.getElementById('ac-instagram').value.trim(),
     notes: document.getElementById('ac-notes').value.trim(),
     log: [],
     last_contact: null,
@@ -735,7 +744,7 @@ async function saveContact() {
   };
   await saveContact_DB(contact);
   closeModal('add-contact-modal');
-  ['ac-name','ac-biz','ac-phone','ac-email','ac-source','ac-notes'].forEach(id => {
+  ['ac-name','ac-biz','ac-phone','ac-email','ac-source','ac-website','ac-facebook','ac-instagram','ac-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   toast(name + ' added');
@@ -829,6 +838,33 @@ async function generateNextAction(contact, allContacts) {
   } catch {}
 }
 
+function toggleEdit(id) {
+  const el = document.getElementById('edit-' + id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function saveEdit(id) {
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(function(x){return x.id === id;});
+  if (!c) return;
+  c.name = document.getElementById('en-' + id).value.trim() || c.name;
+  c.business = document.getElementById('eb-' + id).value.trim();
+  c.phone = document.getElementById('ep-' + id).value.trim();
+  c.email = document.getElementById('ee-' + id).value.trim();
+  c.website = document.getElementById('ew-' + id).value.trim();
+  c.instagram = document.getElementById('ei-' + id).value.trim();
+  c.facebook = document.getElementById('ef-' + id).value.trim();
+  c.stage = document.getElementById('es-' + id).value;
+  c.notes = document.getElementById('eno-' + id).value.trim();
+  lsSet('contacts', contacts);
+  await saveContact_DB(c);
+  allContacts = contacts;
+  renderContacts(allContacts);
+  renderPipeline(allContacts);
+  updateStats(allContacts);
+  toast('Contact updated');
+}
+
 async function deleteContact(id) {
   if (!confirm('Remove this contact?')) return;
   const contacts = (lsGet('contacts') || []).filter(c => c.id !== id);
@@ -871,7 +907,12 @@ function contactCardHTML(c) {
     + '<div class="urgency-dot ' + urgency + '"></div>'
     + '<div style="font-size:10px;color:var(--text3);font-weight:600">' + daysText + '</div>'
     + '</div></div>'
-    + '<div style="margin-top:6px"><span class="stage-pill" style="background:' + stageColor + '22;color:' + stageColor + '">' + (STAGE_LABELS[c.stage]||c.stage) + '</span></div>'
+    + '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center">'
+    + '<span class="stage-pill" style="background:' + stageColor + '22;color:' + stageColor + '">' + (STAGE_LABELS[c.stage]||c.stage) + '</span>'
+    + (c.website ? '<a href="' + c.website + '" target="_blank" style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:#F0EDE8;color:#5C5248;text-decoration:none">🌐 Site</a>' : '')
+    + (c.instagram ? '<a href="https://instagram.com/' + c.instagram.replace('@','') + '" target="_blank" style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:#F0EDE8;color:#C84B11;text-decoration:none">📷 IG</a>' : '')
+    + (c.facebook ? '<a href="' + (c.facebook.startsWith('http') ? c.facebook : 'https://facebook.com/'+c.facebook) + '" target="_blank" style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:#F0EDE8;color:#2563eb;text-decoration:none">👥 FB</a>' : '')
+    + '</div>'
     + '</div></div>'
     + (c.next_action ? '<div style="background:var(--burn-light);border-radius:var(--r-sm);padding:8px 10px;margin-bottom:10px;border-left:2px solid var(--burn)">'
       + '<div class="lbl lbl-burn" style="margin-bottom:3px">Next move</div>'
@@ -882,6 +923,20 @@ function contactCardHTML(c) {
     + (c.phone ? '<a href="sms:' + c.phone + '" style="flex:1;min-width:70px;display:flex;align-items:center;justify-content:center;padding:8px;border:1.5px solid var(--border);border-radius:var(--pill);font-size:11px;font-weight:700;color:var(--text2);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase">💬 Text</a>' : '')
     + '<button class="btn-burn btn-sm" style="flex:1;min-width:80px" onclick="openLogCall(' + c.id + ')">Log contact</button>'
     + '<button class="btn-danger btn-sm" onclick="deleteContact(' + c.id + ')" style="padding:8px 10px;text-transform:none;letter-spacing:0">✕</button>'
+    + '</div>'
+    + '<button class="btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="toggleEdit(' + c.id + ')">✏ Edit contact</button>'
+    + '<div id="edit-' + c.id + '" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">'
+    + '<input type="text" placeholder="Name" id="en-' + c.id + '" value="' + (c.name||'') + '" style="margin-bottom:8px">'
+    + '<input type="text" placeholder="Business" id="eb-' + c.id + '" value="' + (c.business||'') + '" style="margin-bottom:8px">'
+    + '<input type="tel" placeholder="Phone" id="ep-' + c.id + '" value="' + (c.phone||'') + '" style="margin-bottom:8px">'
+    + '<input type="email" placeholder="Email" id="ee-' + c.id + '" value="' + (c.email||'') + '" style="margin-bottom:8px">'
+    + '<input type="url" placeholder="Website" id="ew-' + c.id + '" value="' + (c.website||'') + '" style="margin-bottom:8px">'
+    + '<input type="text" placeholder="Instagram @handle" id="ei-' + c.id + '" value="' + (c.instagram||'') + '" style="margin-bottom:8px">'
+    + '<input type="text" placeholder="Facebook" id="ef-' + c.id + '" value="' + (c.facebook||'') + '" style="margin-bottom:8px">'
+    + '<select id="es-' + c.id + '" style="margin-bottom:8px">' + Object.entries(STAGE_LABELS).map(function(e){return '<option value="'+e[0]+'"'+(c.stage===e[0]?' selected':'')+'>'+e[1]+'</option>';}).join('') + '</select>'
+    + '<textarea id="eno-' + c.id + '" style="min-height:55px;margin-bottom:10px">' + (c.notes||'') + '</textarea>'
+    + '<button class="btn-burn btn-sm" style="width:100%;margin-bottom:6px" onclick="saveEdit(' + c.id + ')">Save changes</button>'
+    + '<button class="btn-ghost btn-sm" style="width:100%" onclick="toggleEdit(' + c.id + ')">Cancel</button>'
     + '</div>'
     + (c.log && c.log.length ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">'
       + '<div class="lbl" style="margin-bottom:6px">Recent activity</div>'
@@ -1121,7 +1176,7 @@ async function processVoiceLog() {
   if (!voiceTranscript) return;
   document.getElementById('voice-process-btn').textContent = 'Extracting...';
 
-  const prompt = 'Extract contact info from this voice note. Return ONLY valid JSON with these fields: {"name":"","business":"","phone":"","email":"","needs":"","follow_up":"","stage":"prospect","notes":""}. Voice note: "' + voiceTranscript + '"';
+  const prompt = 'Extract contact info from this voice note. Return ONLY valid JSON: {"name":"","business":"","phone":"","email":"","website":"","instagram":"","facebook":"","needs":"","follow_up":"","stage":"prospect","notes":""}. Only include what is actually said. Voice note: "' + voiceTranscript + '"';
 
   try {
     const res = await fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: prompt, type: 'coach' }) });
@@ -1156,6 +1211,9 @@ async function confirmVoiceContact() {
     business: extractedContact.business || '',
     phone: extractedContact.phone || '',
     email: extractedContact.email || '',
+    website: extractedContact.website || '',
+    facebook: extractedContact.facebook || '',
+    instagram: extractedContact.instagram || '',
     stage: extractedContact.stage || 'prospect',
     notes: [extractedContact.needs, extractedContact.follow_up, extractedContact.notes].filter(Boolean).join('. '),
     log: [],
