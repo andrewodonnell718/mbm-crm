@@ -914,6 +914,112 @@ async function saveIntelProfile() {
   toast('Profile saved');
 }
 
+// ══════════════════════════════════════
+// DIGITAL PRESENCE AUDIT
+// ══════════════════════════════════════
+async function enrichAndAnalyze() {
+  const id = parseInt(document.getElementById('ip-contact-id').value);
+  await saveIntelProfile();
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(function(x){ return x.id === id; });
+  if (!c) return;
+
+  const statusEl = document.getElementById('enrich-status');
+  const btn = document.getElementById('enrich-btn');
+  statusEl.style.display = 'block';
+  btn.textContent = 'Auditing...';
+  btn.disabled = true;
+
+  const audit = { website: null, ads: null, osm: null };
+
+  // ── Website audit ─────────────────────────────────────────────
+  const websiteUrl = c.website || document.getElementById('ip-website') && document.getElementById('ip-website').value;
+  if (websiteUrl) {
+    statusEl.innerHTML = '🌐 Reading their website...';
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: 'Fetch and analyze this website as a digital marketing auditor. URL: ' + websiteUrl + '. Assess: (1) clarity of what the business does, (2) quality and professionalism, (3) call to action presence, (4) mobile friendliness indicators, (5) whether it would convert a visitor into a lead. Give a blunt 3-4 sentence assessment.',
+          type: 'coach',
+          url: websiteUrl
+        })
+      });
+      const data = await res.json();
+      audit.website = data.result || null;
+    } catch(e) { audit.website = null; }
+  }
+
+  // ── Facebook Ad Library check ─────────────────────────────────
+  const bizName = c.business || c.name;
+  statusEl.innerHTML = '📱 Checking Facebook Ad Library...';
+  try {
+    const adLibUrl = 'https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=US&q=' + encodeURIComponent(bizName) + '&search_type=keyword_unordered';
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: 'Check the Facebook Ad Library for a business called "' + bizName + '". URL: ' + adLibUrl + '. Try to determine if they are running active Meta/Facebook ads. If you cannot access the page directly, state that clearly and note what the ad library URL would show. Give a 1-2 sentence observation.',
+        type: 'coach',
+        url: adLibUrl
+      })
+    });
+    const data = await res.json();
+    audit.ads = data.result || null;
+  } catch(e) { audit.ads = null; }
+
+  // ── OpenStreetMap business lookup ─────────────────────────────
+  statusEl.innerHTML = '📍 Looking up their local business data...';
+  try {
+    const searchName = encodeURIComponent(bizName);
+    const osmUrl = 'https://nominatim.openstreetmap.org/search?q=' + searchName + '&format=json&limit=3&addressdetails=1&extratags=1';
+    const res = await fetch(osmUrl, { headers: { 'User-Agent': 'MBM-CRM/1.0' } });
+    const data = await res.json();
+    if (data && data.length > 0) {
+      const place = data[0];
+      const tags = place.extratags || {};
+      const details = [
+        place.display_name ? 'Found: ' + place.display_name : '',
+        tags.phone ? 'Phone: ' + tags.phone : '',
+        tags.website ? 'Website listed: ' + tags.website : '',
+        tags['opening_hours'] ? 'Hours listed' : 'No hours listed',
+        tags.email ? 'Email listed' : '',
+      ].filter(Boolean).join('. ');
+      audit.osm = details || 'Found in OpenStreetMap but limited data available';
+    } else {
+      audit.osm = 'Not found in public business directories — likely low local SEO presence';
+    }
+  } catch(e) { audit.osm = 'Could not retrieve local business data'; }
+
+  // ── Save enrichment data ──────────────────────────────────────
+  const idx = contacts.findIndex(function(x){ return x.id === id; });
+  if (idx >= 0) {
+    contacts[idx].enrichment = {
+      website_audit: audit.website,
+      ads_audit: audit.ads,
+      local_presence: audit.osm,
+      audited_at: new Date().toISOString()
+    };
+    contacts[idx].enriched = true;
+    lsSet('contacts', contacts);
+    await saveContact_DB(contacts[idx]);
+    allContacts = contacts;
+  }
+
+  // ── Show results ─────────────────────────────────────────────
+  let summary = '<strong style="color:var(--burn)">Audit complete</strong><br>';
+  if (audit.website) summary += '<br><strong>Website:</strong> ' + audit.website + '<br>';
+  if (audit.ads) summary += '<br><strong>Meta Ads:</strong> ' + audit.ads + '<br>';
+  if (audit.osm) summary += '<br><strong>Local presence:</strong> ' + audit.osm;
+  statusEl.innerHTML = summary;
+
+  btn.textContent = '✓ Audit complete — generate strategy';
+  btn.disabled = false;
+  btn.onclick = function(){ generateStrategy(); };
+  toast('Audit complete for ' + bizName);
+}
+
 async function generateStrategy() {
   const id = parseInt(document.getElementById('ip-contact-id').value);
   await saveIntelProfile();
@@ -933,7 +1039,16 @@ async function generateStrategy() {
     p.has_seo ? 'doing SEO' : 'no SEO'
   ].join(', ');
 
-  const situation = 'PROSPECT: ' + c.name + (c.business ? ', ' + c.business : '') + '. Industry: ' + (p.industry || 'unknown') + '. Revenue: ' + (p.revenue || 'unknown') + '. Digital presence: ' + presence + '. Biggest challenge: ' + (p.challenge || 'unknown') + '. Goal: ' + (p.goal || 'not specified') + '. Budget: ' + (p.budget || 'unknown') + '. Tried: ' + (p.tried || 'nothing') + '. Context: ' + (p.context || 'none') + '. Conversation history: ' + (logHistory || 'none') + '.';
+  // Include enrichment data if available
+  const enr = c.enrichment || {};
+  const enrichmentContext = enr.audited_at ? (
+    'AUTOMATED DIGITAL AUDIT (conducted ' + enr.audited_at.split('T')[0] + '): '
+    + (enr.website_audit ? 'WEBSITE: ' + enr.website_audit + ' ' : '')
+    + (enr.ads_audit ? 'META ADS: ' + enr.ads_audit + ' ' : '')
+    + (enr.local_presence ? 'LOCAL PRESENCE: ' + enr.local_presence + ' ' : '')
+  ) : 'No automated audit conducted yet — assessment based on manually entered information only.';
+
+  const situation = 'PROSPECT: ' + c.name + (c.business ? ', ' + c.business : '') + '. Industry: ' + (p.industry || 'unknown') + '. Revenue: ' + (p.revenue || 'unknown') + '. Digital presence: ' + presence + '. Biggest challenge: ' + (p.challenge || 'unknown') + '. Goal: ' + (p.goal || 'not specified') + '. Budget: ' + (p.budget || 'unknown') + '. Tried: ' + (p.tried || 'nothing') + '. Context: ' + (p.context || 'none') + '. Conversation history: ' + (logHistory || 'none') + '. ' + enrichmentContext;
 
   const structure = 'Structure your response with exactly these four sections and nothing else: ## SITUATION ASSESSMENT (2-3 honest sentences on where this business actually is right now — what is working and what is not). ## BIGGEST OPPORTUNITY (the single highest-leverage move for this specific business — be concrete and specific to their industry, not generic). ## WHAT TO SAY NEXT (exact talking points for the next conversation — opening question, pain point to name, outcome to describe, how to handle likely pushback). ## RED FLAGS (what could make this a difficult client or bad fit — be honest). Do not include pricing, packaging, or 90-day plans — those are handled separately by the business.';
 
@@ -1610,7 +1725,9 @@ init();
     <textarea id="ip-context" placeholder="Anything else the AI should know — owner's personality, urgency, referral source details, specific concerns..." style="min-height:60px;margin-bottom:16px"></textarea>
 
     <button class="btn-burn" style="width:100%;margin-bottom:8px" onclick="saveIntelProfile()">Save profile</button>
-    <button class="btn-burn" style="width:100%;margin-bottom:8px;background:var(--black);border-color:var(--black)" onclick="generateStrategy()">Generate AI strategy</button>
+    <button class="btn-ghost" style="width:100%;margin-bottom:8px" id="enrich-btn" onclick="enrichAndAnalyze()">🔍 Auto-audit their digital presence</button>
+    <button class="btn-burn" style="width:100%;margin-bottom:8px;background:var(--black);border-color:var(--black)" onclick="generateStrategy()">🧠 Generate AI strategy</button>
+    <div id="enrich-status" style="display:none;margin-bottom:8px;padding:12px;background:#F8F4F0;border-radius:var(--r-sm);font-size:12px;color:var(--text2);line-height:1.7"></div>
     <button class="btn-ghost" style="width:100%" onclick="closeModal('intel-profile-modal')">Close</button>
   </div>
 </div>
