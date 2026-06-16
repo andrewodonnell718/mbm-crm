@@ -674,38 +674,56 @@ function lsSet(key, val) {
 }
 
 async function getContacts() {
+  const wsId = currentWorkspace ? currentWorkspace.id : 'default';
   try {
-    const wsId = currentWorkspace ? currentWorkspace.id : null;
-    if (!wsId) return lsGet('contacts') || [];
-    const res = await sbFetch('/rest/v1/mbm_contacts?workspace_id=eq.' + wsId + '&order=created_at.desc&select=*');
-    if (!res.ok) throw new Error('fetch failed');
+    const res = await sbFetch('/rest/v1/mbm_contacts?workspace_id=eq.' + encodeURIComponent(wsId) + '&order=created_at.desc&select=*');
+    if (!res.ok) throw new Error('sb fetch failed');
     const data = await res.json();
-    lsSet('contacts', data);
-    return data;
-  } catch {
+    if (Array.isArray(data)) {
+      lsSet('contacts', data); // cache locally
+      return data;
+    }
+    throw new Error('bad response');
+  } catch(e) {
+    console.log('Supabase read failed, using cache:', e.message);
     return lsGet('contacts') || [];
   }
 }
 
 async function saveContact_DB(contact) {
   setSync('syncing');
-  try {
-    const wsId = currentWorkspace ? currentWorkspace.id : 'default';
-    contact.workspace_id = wsId;
-    if (contact.id && typeof contact.id === 'number') {
-      // New contact — insert
-      const res = await sbFetch('/rest/v1/mbm_contacts', {
-        method: 'POST',
-        body: JSON.stringify(contact)
-      });
-    }
-    setSyncOk();
-  } catch { setSyncErr(); }
-  // Always save to localStorage
+  const wsId = currentWorkspace ? currentWorkspace.id : 'default';
+  contact.workspace_id = wsId;
+
+  // Always update local cache first
   const contacts = lsGet('contacts') || [];
   const idx = contacts.findIndex(c => c.id === contact.id);
   if (idx >= 0) contacts[idx] = contact; else contacts.unshift(contact);
   lsSet('contacts', contacts);
+
+  try {
+    // Upsert to Supabase — works for both new and updated contacts
+    const res = await sbFetch('/rest/v1/mbm_contacts', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(contact)
+    });
+    if (res.ok) { setSyncOk(); } else { setSyncErr(); }
+  } catch(e) {
+    console.log('Supabase write failed:', e.message);
+    setSyncErr();
+  }
+}
+
+async function deleteContact_DB(id) {
+  const wsId = currentWorkspace ? currentWorkspace.id : 'default';
+  try {
+    await sbFetch('/rest/v1/mbm_contacts?id=eq.' + id + '&workspace_id=eq.' + encodeURIComponent(wsId), {
+      method: 'DELETE'
+    });
+  } catch(e) {
+    console.log('Delete from Supabase failed:', e.message);
+  }
 }
 
 // ══════════════════════════════════════
@@ -873,6 +891,7 @@ async function deleteContact(id) {
   renderContacts(allContacts);
   renderPipeline(allContacts);
   updateStats(allContacts);
+  await deleteContact_DB(id);
   toast('Contact removed');
 }
 
@@ -1372,13 +1391,13 @@ async function saveWorkspace() {
 // INIT
 // ══════════════════════════════════════
 function init() {
-  // Quick login check
   const saved = localStorage.getItem('mbm_session');
   if (saved) {
     try {
       const sess = JSON.parse(saved);
       currentUser = sess.user;
       currentWorkspace = sess.workspace;
+      currentSession = sess.session || SK;
       showMain();
       return;
     } catch {}
@@ -1389,7 +1408,11 @@ function init() {
 const origShowMain = showMain;
 window.showMain = function() {
   if (currentUser) {
-    localStorage.setItem('mbm_session', JSON.stringify({ user: currentUser, workspace: currentWorkspace }));
+    localStorage.setItem('mbm_session', JSON.stringify({ 
+      user: currentUser, 
+      workspace: currentWorkspace,
+      session: currentSession
+    }));
   }
   origShowMain();
 };
