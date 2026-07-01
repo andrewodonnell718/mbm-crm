@@ -1,51 +1,92 @@
- module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+ const MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const MAX_TOKENS = 4000;
 
-  const { text, type } = req.body || {};
-  if (!text) return res.status(400).json({ error: 'No text provided' });
+async function fetchPageText(url) {
+  try {
+    if (!/^https?:\/\//i.test(url)) return null;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 9000);
+    const res = await fetch(url, {
+      signal: ctrl.signal,
+      headers: { 'User-Agent': 'MBM-CRM/1.0 (+https://mbm-crm.vercel.app)' },
+      redirect: 'follow'
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const html = await res.text();
+    const text = html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return text.slice(0, 6000);
+  } catch (e) {
+    return null;
+  }
+}
 
-  let prompt = '';
-  let maxTokens = 500;
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
 
-  if (type === 'nutrition') {
-    prompt = `Nutrition analyst. User described food they ate. Make best estimate based on typical portions. Always return numbers. Return ONLY valid JSON, no markdown: {"calories":number,"protein":number,"carbs":number,"fats":number,"fiber":number,"summary":"one sentence"}\n\nFood: ${text}`;
-  } else if (type === 'muscle') {
-    prompt = `Fitness expert. Muscles worked by: "${text}". Use ONLY: chest,front-delts,side-delts,rear-delts,traps,lats,upper-back,lower-back,biceps,triceps,forearms,abs,obliques,quads,hamstrings,glutes,calves,hip-flexors. Return ONLY valid JSON: {"front":["muscle1"],"back":["muscle2"]}`;
-  } else if (type === 'coach') {
-    prompt = text;
-    maxTokens = 8000;
-  } else {
-    return res.status(400).json({ error: 'Invalid type' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    res.status(500).json({ error: 'Server is missing GEMINI_API_KEY' });
+    return;
   }
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    let body = req.body;
+    if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
+    body = body || {};
+
+    const text = (body.text || '').toString();
+    const url = body.url ? body.url.toString() : '';
+    if (!text.trim()) {
+      res.status(400).json({ error: 'Missing "text"' });
+      return;
+    }
+
+    let prompt = text;
+    if (url) {
+      const pageText = await fetchPageText(url);
+      if (pageText) {
+        prompt = 'LIVE WEBSITE CONTENT fetched from ' + url + ':\n"""' + pageText + '"""\n\n' + text;
+      }
+    }
+
+    const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/'
+      + encodeURIComponent(MODEL) + ':generateContent?key=' + encodeURIComponent(apiKey);
+
+    const aiRes = await fetch(geminiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: maxTokens,
-        messages: [{ role: 'user', content: prompt }]
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: MAX_TOKENS, temperature: 0.7 }
       })
     });
-    const d = await r.json();
-    if (!r.ok) return res.status(500).json({ error: 'Anthropic API error', details: d });
-    const raw = d.content.map(i => i.text || '').join('').replace(/```json|```/g, '').trim();
-    if (type === 'coach') return res.status(200).json({ result: raw });
-    try {
-      return res.status(200).json(JSON.parse(raw));
-    } catch (e) {
-      return res.status(200).json({ raw });
+
+    const data = await aiRes.json();
+
+    if (!aiRes.ok) {
+      const msg = (data && data.error && data.error.message) || 'AI request failed';
+      res.status(aiRes.status).json({ error: msg });
+      return;
     }
+
+    let result = '';
+    if (data.candidates && data.candidates[0] && data.candidates[0].content
+        && Array.isArray(data.candidates[0].content.parts)) {
+      result = data.candidates[0].content.parts.map(p => p.text || '').join('').trim();
+    }
+
+    res.status(200).json({ result });
   } catch (e) {
-    return res.status(500).json({ error: 'Server error', message: e.message });
+    res.status(500).json({ error: 'Server error: ' + (e && e.message ? e.message : 'unknown') });
   }
 };
