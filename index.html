@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>MBM CRM — Motion by Movements</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- In-browser text reader for uploaded screenshots (OCR) -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --burn:#C84B11;--burn2:#E05A1A;--burn-light:rgba(200,75,17,0.08);
+  --black:#0A0A0A;--white:#fff;
+  --bg:#F5F0EB;--card:#fff;
+  --border:#E8E0D8;--border2:#D4C8BC;
+  --text:#0A0A0A;--text2:#5C5248;--text3:#9E948A;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;
+  --r:16px;--r-sm:10px;--pill:999px;
+}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased;padding-bottom:100px}
+
+/* ── Header ── */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--black);position:sticky;top:0;z-index:100}
+.brand-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.12em;color:var(--white);line-height:1}
+.brand-sub{font-size:9px;font-weight:600;letter-spacing:0.2em;color:var(--burn);text-transform:uppercase;margin-top:2px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#333;transition:all 0.3s}
+.sync-dot.ok{background:var(--green);box-shadow:0 0 8px rgba(22,163,74,0.5)}
+.sync-dot.syncing{background:var(--amber)}
+.sync-dot.err{background:var(--red)}
+
+/* ── Bubble nav ── */
+.nav-wrap{padding:14px 16px 0;background:var(--black)}
+.nav-pills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px}
+.nav-pills::-webkit-scrollbar{display:none}
+.np{padding:8px 18px;border-radius:var(--pill);border:1.5px solid #333;background:transparent;color:#666;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;transition:all 0.2s;touch-action:manipulation}
+.np.active{background:var(--burn);border-color:var(--burn);color:var(--white);box-shadow:0 2px 12px rgba(200,75,17,0.4)}
+
+/* ── Pages ── */
+.page{display:none;padding:16px;animation:fadeUp 0.2s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
+.card-dark{background:var(--black);border-color:var(--black)}
+.card-burn{border-color:rgba(200,75,17,0.3);background:var(--burn-light)}
+
+/* ── Labels ── */
+.lbl{font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.lbl-burn{color:var(--burn)}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.08em;color:var(--text);margin-bottom:14px}
+
+/* ── Inputs ── */
+input,select,textarea{width:100%;padding:11px 16px;border:1.5px solid var(--border);border-radius:var(--pill);font-size:14px;background:var(--white);color:var(--text);font-family:'Inter',sans-serif;margin-bottom:10px;outline:none;-webkit-appearance:none;transition:border-color 0.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--burn)}
+textarea{resize:vertical;min-height:70px;border-radius:var(--r-sm)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+
+/* ── Buttons ── */
+button{padding:11px 20px;border:1.5px solid var(--border);border-radius:var(--pill);background:var(--white);color:var(--text);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;font-family:'Inter',sans-serif;touch-action:manipulation;transition:all 0.15s}
+button:active{transform:scale(0.97)}
+.btn-burn{background:var(--burn);color:var(--white);border-color:var(--burn);box-shadow:0 4px 16px rgba(200,75,17,0.3)}
+.btn-black{background:var(--black);color:var(--white);border-color:var(--black)}
+.btn-sm{padding:7px 14px;font-size:10px}
+.btn-danger{color:var(--red);border-color:rgba(220,38,38,0.2)}
+.btn-ghost{background:transparent;border-color:var(--border2);color:var(--text2)}
+
+/* ── Bubble sub-tabs ── */
+.btabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.bt{padding:7px 16px;border-radius:var(--pill);border:1.5px solid var(--border2);font-size:10px;font-weight:700;cursor:pointer;background:var(--white);color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;transition:all 0.2s;font-family:'Inter',sans-serif;touch-action:manipulation}
+.bt.active{background:var(--burn);color:var(--white);border-color:var(--burn);box-shadow:0 2px 10px rgba(200,75,17,0.3)}
+
+/* ── Stats grid ── */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 12px;text-align:center}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text);letter-spacing:0.05em;line-height:1}
+.stat-lbl{font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-top:4px}
+
+/* ── Contact card ── */
+.contact-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.contact-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--burn)}
+.contact-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--burn),var(--burn2));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--white);letter-spacing:0.05em;flex-shrink:0}
+.contact-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px}
+.contact-biz{font-size:12px;color:var(--text2);margin-bottom:4px}
+.stage-pill{display:inline-block;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:var(--pill);background:var(--burn-light);color:var(--burn)}
+.urgency-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.urgency-dot.hot{background:var(--burn)}
+.urgency-dot.warm{background:var(--amber)}
+.urgency-dot.cold{background:var(--text3)}
+
+/* ── Voice button ── */
+.voice-btn{width:64px;height:64px;border-radius:50%;background:var(--burn);border:none;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(200,75,17,0.4);transition:all 0.2s;touch-action:manipulation;flex-shrink:0}
+.voice-btn.listening{animation:pulse-burn 1s infinite;background:var(--red)}
+.voice-btn.processing{animation:spin-slow 2s linear infinite}
+@keyframes pulse-burn{0%,100%{box-shadow:0 4px 20px rgba(200,75,17,0.4)}50%{box-shadow:0 4px 40px rgba(200,75,17,0.8),0 0 0 12px rgba(200,75,17,0.1)}}
+@keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* ── Priority badge ── */
+.priority{display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--burn-light);border-radius:var(--r-sm);border-left:3px solid var(--burn);margin-bottom:8px}
+.priority-rank{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--burn);line-height:1;min-width:20px}
+
+/* ── Enrichment badge ── */
+.enrich-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:var(--pill);margin:2px}
+.eb-yes{background:rgba(22,163,74,0.1);color:var(--green)}
+.eb-no{background:rgba(156,148,138,0.1);color:var(--text3)}
+.eb-ads{background:rgba(200,75,17,0.1);color:var(--burn)}
+
+/* ── Modal ── */
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,10,10,0.7);backdrop-filter:blur(8px);z-index:200;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;border-radius:var(--pill);background:var(--border2);margin:0 auto 20px}
+
+/* ── Row util ── */
+.row{display:flex;gap:8px}
+.row>*{margin-bottom:0!important}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:30px 20px;color:var(--text3);font-size:13px}
+.empty-icon{font-size:32px;margin-bottom:10px}
+
+/* ── Activity log ── */
+.activity-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-time{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.06em}
+.activity-text{font-size:13px;color:var(--text);line-height:1.5;margin-top:2px}
+
+/* ── Workspace card ── */
+.workspace-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s}
+.workspace-card:active{transform:scale(0.99)}
+.workspace-card.active-ws{border-color:var(--burn);background:var(--burn-light)}
+.ws-logo{width:40px;height:40px;border-radius:var(--r-sm);background:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--white);flex-shrink:0}
+
+/* ── Call list item ── */
+.call-item{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px}
+.call-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--burn);line-height:1;min-width:28px}
+
+/* ── Strategy header ── */
+.strategy-header{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;color:var(--burn);margin:16px 0 8px;padding-top:14px;border-top:1px solid var(--border);display:block}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--black);color:var(--white);padding:10px 20px;border-radius:var(--pill);font-size:12px;font-weight:600;opacity:0;transition:all 0.3s;z-index:300;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Login screen ── */
+.login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--black);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:0.15em;color:var(--white);margin-bottom:4px}
+.login-sub{font-size:10px;font-weight:700;letter-spacing:0.25em;color:var(--burn);text-transform:uppercase;margin-bottom:48px}
+.login-form{width:100%;max-width:340px}
+</style>
+</head>
+<body>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── LOGIN ── -->
+<div class="login-screen" id="login-screen">
+  <div class="login-logo">MBM CRM</div>
+  <div class="login-sub">Motion by Movements</div>
+  <div class="login-form">
+    <div class="lbl" style="color:#666;margin-bottom:6px">Email</div>
+    <input type="email" id="login-email" placeholder="you@domain.com" style="background:#111;border-color:#333;color:#fff;margin-bottom:12px">
+    <div class="lbl" style="color:#666;margin-bottom:6px">Password</div>
+    <input type="password" id="login-pass" placeholder="••••••••" style="background:#111;border-color:#333;color:#fff;margin-bottom:20px" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-burn" style="width:100%;padding:14px;font-size:13px" onclick="doLogin()">Sign in</button>
+    <div id="login-error" style="color:var(--red);font-size:12px;text-align:center;margin-top:10px;display:none"></div>
+    <div style="text-align:center;margin-top:20px">
+      <button class="btn-ghost btn-sm" onclick="showSignup()" style="margin-top:16px;width:100%;padding:12px">Create account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SIGNUP MODAL ── -->
+<div class="modal-bg" id="signup-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="section-title">New account</div>
+    <div class="lbl">Your name</div>
+    <input type="text" id="su-name" placeholder="Full name">
+    <div class="lbl">Email</div>
+    <input type="email" id="su-email" placeholder="you@domain.com">
+    <div class="lbl">Password</div>
+    <input type="password" id="su-pass" placeholder="Create password" style="margin-bottom:6px">
+    <div class="lbl">Company / workspace name</div>
+    <input type="text" id="su-company" placeholder="e.g. Valley Park Welding or Motion by Movements">
+    <div class="lbl">Role</div>
+    <select id="su-role" style="margin-bottom:16px">
+      <option value="admin">Admin (MBM)</option>
+      <option value="owner">Business owner</option>
+      <option value="user">Team member</option>
+    </select>
+    <button class="btn-burn" style="width:100%;margin-bottom:10px" onclick="doSignup()">Create account</button>
+    <button class="btn-ghost" style="width:100%" onclick="closeModal('signup-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── ADD CONTACT MODAL ── -->
+<div class="modal-bg" id="add-contact-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="section-title" id="ac-modal-title">Add contact</div>
+    <input type="hidden" id="ac-edit-id">
+
+    <!-- Autofill from a paste -->
+    <div class="card-burn" id="ac-autofill-card" style="border:1px solid rgba(200,75,17,0.3);background:var(--burn-light);border-radius:var(--r-sm);padding:12px;margin-bottom:14px">
+      <div class="lbl lbl-burn" style="margin-bottom:6px">✨ Autofill from a paste</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.6">Paste anything you found — their Google profile, a website, an email signature — and it instantly pulls out the phone, email, website, socials & business name. Free, no waiting. Type anything it misses. Your paste is also saved with the lead.</div>
+      <textarea id="ac-autofill" placeholder="Paste their info here..." style="min-height:90px;margin-bottom:8px"></textarea>
+      <div class="row" style="gap:6px">
+        <button class="btn-ghost btn-sm" id="ac-upload-btn" style="flex:1" onclick="document.getElementById('ac-screenshots').click()">📷 Upload screenshots</button>
+        <button class="btn-burn btn-sm" id="ac-autofill-btn" style="flex:1" onclick="autofillContact()">Autofill fields</button>
+      </div>
+      <input type="file" id="ac-screenshots" accept="image/*" multiple style="display:none" onchange="ocrScreenshots(this)">
+      <div id="ac-ocr-status" style="display:none;font-size:11px;color:var(--text2);margin-top:8px"></div>
+    </div>
+
+    <div class="lbl">Full name</div>
+    <input type="text" id="ac-name" placeholder="First and last name">
+    <div class="lbl">Business name</div>
+    <input type="text" id="ac-biz" placeholder="Company they work for">
+    <div class="lbl">Industry / type of business</div>
+    <select id="ac-industry" style="margin-bottom:10px" onchange="onIndustryChange(this)"></select>
+
+    <div class="g2" style="margin-bottom:10px">
+      <div>
+        <div class="lbl" style="margin-bottom:4px">Phone</div>
+        <input type="tel" id="ac-phone" placeholder="Phone" style="margin-bottom:0">
+      </div>
+      <div>
+        <div class="lbl" style="margin-bottom:4px">Email</div>
+        <input type="email" id="ac-email" placeholder="Email" style="margin-bottom:0">
+      </div>
+    </div>
+    <div class="lbl">Stage</div>
+    <select id="ac-stage" style="margin-bottom:10px">
+      <option value="prospect">Prospect</option>
+      <option value="contacted">Contacted</option>
+      <option value="conversation">In conversation</option>
+      <option value="proposal">Proposal sent</option>
+      <option value="close">Ready to close</option>
+      <option value="client">Client</option>
+    </select>
+    <div class="lbl">Source</div>
+    <input type="text" id="ac-source" placeholder="How did you find them? Referral from who?">
+    <div class="lbl">Website</div>
+    <input type="url" id="ac-website" placeholder="https://theirbusiness.com">
+    <div class="g2" style="margin-bottom:10px">
+      <div><div class="lbl" style="margin-bottom:4px">Facebook</div><input type="text" id="ac-facebook" placeholder="facebook.com/..." style="margin-bottom:0"></div>
+      <div><div class="lbl" style="margin-bottom:4px">Instagram</div><input type="text" id="ac-instagram" placeholder="@handle" style="margin-bottom:0"></div>
+    </div>
+    <div class="lbl">Digital issues (check what's wrong)</div>
+    <div id="ac-issues" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;margin-bottom:14px;padding:10px 12px;background:#F8F4F0;border-radius:var(--r-sm)"></div>
+
+    <div class="lbl">Notes</div>
+    <textarea id="ac-notes" placeholder="What do they need? Context?" style="margin-bottom:16px"></textarea>
+    <button class="btn-burn" style="width:100%;margin-bottom:10px" onclick="saveContact()">Save contact</button>
+    <button class="btn-ghost" style="width:100%" onclick="closeModal('add-contact-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── LOG CALL MODAL ── -->
+<div class="modal-bg" id="log-call-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="section-title" id="log-call-name">Log contact</div>
+    <input type="hidden" id="lc-id">
+    <div class="lbl">Type</div>
+    <select id="lc-type" style="margin-bottom:10px">
+      <option value="call">Phone call</option>
+      <option value="text">Text</option>
+      <option value="email">Email</option>
+      <option value="meeting">In person</option>
+      <option value="social">Social</option>
+    </select>
+    <div class="lbl">What happened?</div>
+    <textarea id="lc-notes" placeholder="What did you discuss? What's the next move? Any objections?" style="min-height:90px;margin-bottom:10px"></textarea>
+    <div class="lbl">Stage update</div>
+    <select id="lc-stage" style="margin-bottom:10px">
+      <option value="">No change</option>
+      <option value="prospect">Prospect</option>
+      <option value="contacted">Contacted</option>
+      <option value="conversation">In conversation</option>
+      <option value="proposal">Proposal sent</option>
+      <option value="close">Ready to close</option>
+      <option value="client">Client</option>
+    </select>
+    <div class="lbl">Call result</div>
+    <select id="lc-status" style="margin-bottom:10px" onchange="document.getElementById('lc-callback').style.display = this.value==='callback' ? 'block' : 'none'">
+      <option value="">No change</option>
+      <option value="active">Active — keep pursuing</option>
+      <option value="callback">Call back later</option>
+      <option value="paused">Paused — hold for now</option>
+      <option value="no">Said no</option>
+    </select>
+    <input type="text" id="lc-callback" placeholder="Call back when? (optional, e.g. Jul 22)" style="margin-bottom:16px;display:none">
+    <button class="btn-burn" style="width:100%;margin-bottom:10px" onclick="saveCallLog()">Save log</button>
+    <button class="btn-ghost" style="width:100%" onclick="closeModal('log-call-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── ADD WORKSPACE MODAL ── -->
+<div class="modal-bg" id="add-workspace-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="section-title">Add client workspace</div>
+    <div class="lbl">Business name</div>
+    <input type="text" id="ws-name" placeholder="e.g. Valley Park Welding">
+    <div class="lbl">Industry</div>
+    <input type="text" id="ws-industry" placeholder="e.g. Welding, Contracting, Retail">
+    <div class="lbl">Website (optional)</div>
+    <input type="url" id="ws-website" placeholder="https://...">
+    <div class="lbl">Owner name</div>
+    <input type="text" id="ws-owner" placeholder="Primary contact name">
+    <div class="lbl">Owner email</div>
+    <input type="email" id="ws-email" placeholder="They'll use this to log in" style="margin-bottom:16px">
+    <button class="btn-burn" style="width:100%;margin-bottom:10px" onclick="saveWorkspace()">Create workspace</button>
+    <button class="btn-ghost" style="width:100%" onclick="closeModal('add-workspace-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<div class="hdr" id="main-hdr" style="display:none">
+  <div class="brand">
+    <div class="brand-name">MBM CRM</div>
+    <div class="brand-sub">Motion by Movements</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div id="workspace-indicator" style="font-size:10px;color:#666;font-weight:600;letter-spacing:0.08em;text-align:right"></div>
+    <div class="sync-dot" id="sync"></div>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<div class="nav-wrap" id="main-nav" style="display:none">
+  <div class="nav-pills">
+    <button class="np active" onclick="goPage('pipeline',this)">Pipeline</button>
+    <button class="np" onclick="goPage('calllist',this)">Call list</button>
+    <button class="np" onclick="goPage('contacts',this)">Contacts</button>
+    <button class="np" onclick="goPage('voice',this)">Voice log</button>
+    <button class="np" onclick="goPage('intel',this)">Intel</button>
+    <button class="np" id="admin-nav-btn" style="display:none" onclick="goPage('admin',this)">Admin</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ PIPELINE ════════════════════════════════ -->
+<div id="page-pipeline" class="page active" style="display:none">
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="stat-total">0</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-active" style="color:var(--burn)">0</div><div class="stat-lbl">Active</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-clients" style="color:var(--green)">0</div><div class="stat-lbl">Clients</div></div>
+  </div>
+  <div class="btabs">
+    <button class="bt active" onclick="filterStage('all',this)">All</button>
+    <button class="bt" onclick="filterStage('prospect',this)">Prospect</button>
+    <button class="bt" onclick="filterStage('contacted',this)">Contacted</button>
+    <button class="bt" onclick="filterStage('conversation',this)">Talking</button>
+    <button class="bt" onclick="filterStage('proposal',this)">Proposal</button>
+    <button class="bt" onclick="filterStage('close',this)">Closing</button>
+    <button class="bt" onclick="filterStage('client',this)">Client</button>
+  </div>
+  <div class="row" style="gap:8px;margin-bottom:12px">
+    <select id="pipeline-industry-filter" onchange="applyPipelineFilters()" style="margin-bottom:0;flex:1;font-size:12px;padding:8px 12px"></select>
+    <select id="pipeline-call-filter" onchange="applyPipelineFilters()" style="margin-bottom:0;flex:1;font-size:12px;padding:8px 12px">
+      <option value="all">Everyone</option>
+      <option value="active">Active only</option>
+      <option value="due">Needs a call (7+ days)</option>
+      <option value="never">Never contacted</option>
+      <option value="callback">Call backs</option>
+      <option value="paused">Paused</option>
+      <option value="no">Said no</option>
+    </select>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="lbl" style="margin-bottom:0" id="pipeline-count">Loading...</div>
+    <button class="btn-burn btn-sm" onclick="openAddContact()">+ Add contact</button>
+  </div>
+  <div id="pipeline-list"><div class="empty"><div class="empty-icon">📋</div>No contacts yet</div></div>
+</div>
+
+<!-- ════════════════════════════════ CALL LIST ════════════════════════════════ -->
+<div id="page-calllist" class="page" style="display:none">
+  <div class="card card-dark" style="margin-bottom:14px">
+    <div class="lbl" style="color:#555;margin-bottom:4px">Today's priority list</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--white);letter-spacing:0.05em;margin-bottom:8px">Who to call today</div>
+    <div style="font-size:12px;color:#555;line-height:1.6">Ranked by opportunity score, recency, and stage momentum.</div>
+  </div>
+  <div id="call-list-output"><div class="empty"><div class="empty-icon">📞</div>Generating your call list...</div></div>
+  <button class="btn-burn" style="width:100%;margin-top:8px" onclick="generateCallList()">Refresh call list</button>
+</div>
+
+<!-- ════════════════════════════════ CONTACTS ════════════════════════════════ -->
+<div id="page-contacts" class="page" style="display:none">
+  <div style="position:relative;margin-bottom:12px">
+    <input type="text" id="contact-search" placeholder="Search contacts, companies, notes..." style="margin-bottom:0;padding-left:38px" oninput="searchContacts()">
+    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none">🔍</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="lbl" style="margin-bottom:0" id="contacts-count"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-ghost btn-sm" onclick="showCSVUpload()">Import CSV</button>
+      <button class="btn-burn btn-sm" onclick="openAddContact()">+ Add</button>
+    </div>
+  </div>
+  <div id="contacts-list"><div class="empty"><div class="empty-icon">👥</div>No contacts yet</div></div>
+  <div id="csv-upload-area" style="display:none" class="card card-burn">
+    <div class="lbl lbl-burn">Import from CSV</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">Upload a spreadsheet of contacts. Columns should include: Name, Business, Phone, Email, Notes. Any order is fine.</div>
+    <input type="file" id="csv-file" accept=".csv" onchange="processCSV(this)" style="margin-bottom:10px;border-radius:var(--r-sm);padding:8px">
+    <button class="btn-ghost btn-sm" style="width:100%" onclick="document.getElementById('csv-upload-area').style.display='none'">Cancel</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ VOICE LOG ════════════════════════════════ -->
+<div id="page-voice" class="page" style="display:none">
+  <div class="card card-dark" style="margin-bottom:16px;text-align:center;padding:28px 20px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--white);letter-spacing:0.08em;margin-bottom:6px">Voice log</div>
+    <div style="font-size:12px;color:#555;line-height:1.7;margin-bottom:20px">Tap and speak. It writes down what you said and pulls out the name, company & phone — free and instant.</div>
+    <div style="display:flex;justify-content:center;margin-bottom:16px">
+      <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">🎙</button>
+    </div>
+    <div id="voice-status" style="font-size:12px;color:#555;min-height:18px">Tap to start speaking</div>
+  </div>
+  <div id="voice-transcript-area" style="display:none" class="card">
+    <div class="lbl">What you said</div>
+    <div id="voice-transcript" style="font-size:14px;color:var(--text);line-height:1.7;margin-bottom:12px;font-style:italic"></div>
+    <button class="btn-burn" style="width:100%;margin-bottom:8px" id="voice-process-btn" onclick="processVoiceLog()">Extract and save contact</button>
+    <button class="btn-ghost" style="width:100%" onclick="clearVoice()">Clear</button>
+  </div>
+  <div id="voice-extracted" style="display:none" class="card card-burn">
+    <div class="lbl lbl-burn">Extracted contact</div>
+    <div id="voice-extracted-body"></div>
+    <button class="btn-burn" style="width:100%;margin-bottom:8px" onclick="confirmVoiceContact()">Save contact</button>
+    <button class="btn-ghost" style="width:100%" onclick="editVoiceContact()">Edit before saving</button>
+  </div>
+  <div class="card">
+    <div class="lbl">Tips</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.8">
+      <div style="margin-bottom:4px">• Say the name, company, what they need, and when to follow up</div>
+      <div style="margin-bottom:4px">• "Just met Mike Donnelly, owns a contracting company in Ballwin, needs a website, follow up Tuesday"</div>
+      <div>• It grabs the name, company & phone — free & instant. Type anything it misses.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ INTEL ════════════════════════════════ -->
+<div id="page-intel" class="page" style="display:none">
+  <div class="card card-dark" style="margin-bottom:14px">
+    <div class="lbl" style="color:#555;margin-bottom:4px">Weekly intelligence</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--white);letter-spacing:0.06em;margin-bottom:6px">Your business briefing</div>
+    <div style="font-size:12px;color:#555">AI reads your full pipeline and tells you what it sees.</div>
+  </div>
+  <button class="btn-burn" style="width:100%;margin-bottom:16px" onclick="generateIntel()">Generate weekly intel</button>
+  <div id="intel-output"><div class="empty"><div class="empty-icon">🧠</div>Hit generate to get your briefing</div></div>
+</div>
+
+<!-- ════════════════════════════════ ADMIN ════════════════════════════════ -->
+<div id="page-admin" class="page" style="display:none">
+  <div class="card card-dark" style="margin-bottom:14px">
+    <div class="lbl" style="color:#555;margin-bottom:4px">Admin</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--white);letter-spacing:0.06em">All workspaces</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="lbl" style="margin-bottom:0" id="ws-count"></div>
+    <button class="btn-burn btn-sm" onclick="openModal('add-workspace-modal')">+ New client</button>
+  </div>
+  <div id="workspace-list"><div class="empty"><div class="empty-icon">🏢</div>No client workspaces yet</div></div>
+  <div class="card" style="margin-top:16px">
+    <div class="lbl">Account</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px" id="admin-user-info"></div>
+    <button class="btn-danger btn-sm" onclick="doLogout()">Sign out</button>
+  </div>
+</div>
+
+<script>
+
+// ══════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════
+const SB = 'https://nzmfrwddmckviovdstmr.supabase.co';
+const SK = 'sb_publishable_tJoDpcRWqTmi5t9RP_Dcsw_f-54PEzY';
+
+async function sbFetch(path, opts={}) {
+  const res = await fetch(SB + path, {
+    ...opts,
+    headers: {
+      'apikey': SK,
+      'Authorization': 'Bearer ' + (currentSession || SK),
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...(opts.headers || {})
+    }
+  });
+  return res;
+}
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let currentUser = null;
+let currentWorkspace = null;
+let currentSession = null;
+let allContacts = [];
+let currentStageFilter = 'all';
+let currentIndustryFilter = 'all';
+let currentCallFilter = 'all';
+let voiceTranscript = '';
+let extractedContact = null;
+let recognition = null;
+let isListening = false;
+
+// ══════════════════════════════════════
+// CORE UTILS
+// ══════════════════════════════════════
+function toast(msg, duration=2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
+function setSync(s) { document.getElementById('sync').className = 'sync-dot ' + s; }
+function setSyncOk() { setSync('ok'); }
+function setSyncErr() { setSync('err'); }
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function goPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.np').forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.style.display = 'block';
+  if (btn) btn.classList.add('active');
+  if (id === 'pipeline') loadPipeline();
+  if (id === 'calllist') generateCallList();
+  if (id === 'contacts') loadContacts();
+  if (id === 'intel') {};
+  if (id === 'admin') loadAdmin();
+}
+
+function showMain() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-hdr').style.display = 'flex';
+  document.getElementById('main-nav').style.display = 'block';
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  document.getElementById('page-pipeline').style.display = 'block';
+  if (currentUser && currentUser.role === 'admin') {
+    document.getElementById('admin-nav-btn').style.display = 'block';
+  }
+  updateWorkspaceIndicator();
+  loadPipeline();
+}
+
+function updateWorkspaceIndicator() {
+  const el = document.getElementById('workspace-indicator');
+  if (!el) return;
+  if (currentWorkspace) {
+    el.textContent = currentWorkspace.name.toUpperCase();
+  } else {
+    el.textContent = currentUser ? currentUser.role.toUpperCase() : '';
+  }
+}
+
+// ══════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════
+function showSignup() {
+  openModal('signup-modal');
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  if (!email || !pass) { errEl.textContent = 'Enter email and password'; errEl.style.display = 'block'; return; }
+
+  try {
+    const res = await fetch(SB + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': SK, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || 'Login failed');
+
+    currentSession = data.access_token;
+    // Get user profile
+    const profileRes = await sbFetch('/rest/v1/mbm_users?email=eq.' + encodeURIComponent(email) + '&select=*');
+    const profiles = await profileRes.json();
+    if (profiles && profiles[0]) {
+      currentUser = profiles[0];
+      // Set default workspace
+      if (currentUser.workspace_id) {
+        const wsRes = await sbFetch('/rest/v1/mbm_workspaces?id=eq.' + currentUser.workspace_id + '&select=*');
+        const ws = await wsRes.json();
+        if (ws && ws[0]) currentWorkspace = ws[0];
+      }
+    } else {
+      currentUser = { email, role: 'user', name: email };
+    }
+    showMain();
+  } catch(e) {
+    // Fallback: demo mode with localStorage
+    console.log('Auth fallback:', e.message);
+    currentUser = { email, role: email.includes('andrew') || email.includes('mbm') || email.includes('admin') ? 'admin' : 'user', name: email.split('@')[0] };
+    currentWorkspace = { id: email, name: currentUser.role === 'admin' ? 'Motion by Movements' : 'My Workspace' };
+    showMain();
+  }
+}
+
+async function doSignup() {
+  const name = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const pass = document.getElementById('su-pass').value;
+  const company = document.getElementById('su-company').value.trim();
+  const role = document.getElementById('su-role').value;
+
+  if (!name || !email || !pass || !company) { toast('Fill in all fields'); return; }
+
+  try {
+    // Create auth user
+    const authRes = await fetch(SB + '/auth/v1/signup', {
+      method: 'POST',
+      headers: { 'apikey': SK, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const authData = await authRes.json();
+
+    // Create workspace
+    const wsRes = await sbFetch('/rest/v1/mbm_workspaces', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=representation' },
+      body: JSON.stringify({ name: company, created_at: new Date().toISOString() })
+    });
+    const wsData = await wsRes.json();
+    const workspaceId = wsData && wsData[0] ? wsData[0].id : company;
+
+    // Create user profile
+    await sbFetch('/rest/v1/mbm_users', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, role, workspace_id: workspaceId, created_at: new Date().toISOString() })
+    });
+
+    toast('Account created! Sign in now.');
+    closeModal('signup-modal');
+    document.getElementById('login-email').value = email;
+  } catch(e) {
+    // Demo mode
+    currentUser = { name, email, role };
+    currentWorkspace = { id: Date.now().toString(), name: company };
+    closeModal('signup-modal');
+    showMain();
+    toast('Account created — welcome to MBM CRM');
+  }
+}
+
+function doLogout() {
+  // Sign-in wall removed — just reload back into the app.
+  location.reload();
+}
+
+// ══════════════════════════════════════
+// DATA — localStorage fallback
+// ══════════════════════════════════════
+function getWSKey(key) {
+  const wsId = currentWorkspace ? currentWorkspace.id : 'default';
+  return 'mbm_' + wsId + '_' + key;
+}
+
+function lsGet(key) {
+  try { return JSON.parse(localStorage.getItem(getWSKey(key))); } catch { return null; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(getWSKey(key), JSON.stringify(val)); } catch {}
+}
+
+// Merge two contact lists by id without ever losing data.
+// On conflict, keep whichever copy was updated most recently.
+function mergeContacts(a, b) {
+  const map = {};
+  const stamp = c => c.updated_at || c.precall_date || c.strategy_date || c.last_contact || c.created_at || '';
+  const isEmpty = v => v === null || v === undefined || v === '' || (Array.isArray(v) && v.length === 0);
+  (a || []).concat(b || []).forEach(c => {
+    if (!c || c.id === undefined || c.id === null) return;
+    const existing = map[c.id];
+    if (!existing) { map[c.id] = c; return; }
+    // Same contact from two sources — take the newer as the base, but backfill any
+    // field the newer copy is missing/empty from the other (so a cloud row that had a
+    // brand-new field stripped out doesn't wipe the richer local copy).
+    const newer = stamp(c) >= stamp(existing) ? c : existing;
+    const older = newer === c ? existing : c;
+    const merged = Object.assign({}, older, newer);
+    Object.keys(older).forEach(k => { if (isEmpty(merged[k]) && !isEmpty(older[k])) merged[k] = older[k]; });
+    map[c.id] = merged;
+  });
+  return Object.values(map).sort((x, y) => (stamp(y)).localeCompare(stamp(x)));
+}
+
+async function getContacts() {
+  const wsId = currentWorkspace ? currentWorkspace.id : 'default';
+  const local = lsGet('contacts') || [];
+  try {
+    const res = await sbFetch('/rest/v1/mbm_contacts?workspace_id=eq.' + encodeURIComponent(wsId) + '&order=created_at.desc&select=*');
+    if (!res.ok) throw new Error('sb fetch failed');
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      // Merge — never let a thin/empty Supabase read destroy locally saved data
+      const merged = mergeContacts(local, data);
+      lsSet('contacts', merged);
+      // Auto-heal: push up any contacts that are on this device but not yet in the cloud
+      // (e.g. saved while the DB was rejecting them). Fire-and-forget, runs once per contact.
+      const remoteIds = new Set(data.map(c => c.id));
+      merged.filter(c => !remoteIds.has(c.id)).forEach(c => {
+        c.workspace_id = wsId;
+        sbFetch('/rest/v1/mbm_contacts', { method: 'POST', headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(c) }).catch(() => {});
+      });
+      return merged;
+    }
+    throw new Error('bad response');
+  } catch(e) {
+    console.log('Supabase read failed, using cache:', e.message);
+    return local;
+  }
+}
+
+async function saveContact_DB(contact) {
+  setSync('syncing');
+  const wsId = currentWorkspace ? currentWorkspace.id : 'default';
+  contact.workspace_id = wsId;
+  contact.updated_at = new Date().toISOString(); // so merges always keep the newest copy
+
+  // Always update local cache first
+  const contacts = lsGet('contacts') || [];
+  const idx = contacts.findIndex(c => c.id === contact.id);
+  if (idx >= 0) contacts[idx] = contact; else contacts.unshift(contact);
+  lsSet('contacts', contacts);
+
+  try {
+    // Upsert to Supabase — works for both new and updated contacts
+    let res = await sbFetch('/rest/v1/mbm_contacts', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(contact)
+    });
+    // Safety net: if a brand-new field has no column yet, the DB rejects the whole
+    // row (usually 400/404/PGRST204). Retry with only the known-safe columns so the
+    // contact still syncs — the new field will sync too once its column is added.
+    if (!res.ok && (res.status === 400 || res.status === 404)) {
+      res = await sbFetch('/rest/v1/mbm_contacts', {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(safeContactForDB(contact))
+      });
+    }
+    if (res.ok) { setSyncOk(); } else { setSyncErr(); }
+  } catch(e) {
+    console.log('Supabase write failed:', e.message);
+    setSyncErr();
+  }
+}
+
+// Keep only columns that have long existed in the table (used as a fallback write).
+const SAFE_CONTACT_COLS = ['id','workspace_id','name','business','industry','phone','email','stage','source','website','facebook','instagram','notes','log','last_contact','next_action','next_action_date','created_at','updated_at','enriched','meta_ads_check_url','intel_profile','enrichment','strategy','strategy_summary','strategy_date'];
+function safeContactForDB(contact) {
+  const out = {};
+  SAFE_CONTACT_COLS.forEach(k => { if (contact[k] !== undefined) out[k] = contact[k]; });
+  return out;
+}
+
+async function deleteContact_DB(id) {
+  const wsId = currentWorkspace ? currentWorkspace.id : 'default';
+  try {
+    await sbFetch('/rest/v1/mbm_contacts?id=eq.' + id + '&workspace_id=eq.' + encodeURIComponent(wsId), {
+      method: 'DELETE'
+    });
+  } catch(e) {
+    console.log('Delete from Supabase failed:', e.message);
+  }
+}
+
+// ══════════════════════════════════════
+// CONTACTS
+// ══════════════════════════════════════
+const STAGE_COLORS = {
+  prospect: '#9E948A', contacted: '#2563eb', conversation: '#d97706',
+  proposal: '#7c3aed', close: '#C84B11', client: '#16a34a'
+};
+
+const STAGE_LABELS = {
+  prospect: 'Prospect', contacted: 'Contacted', conversation: 'In conversation',
+  proposal: 'Proposal', close: 'Closing', client: 'Client'
+};
+
+// ── Industries (editable list) ─────────────────────────────
+const DEFAULT_INDUSTRIES = [
+  'Restaurant / Cafe', 'Bakery', 'Bar / Brewery', 'Catering / Food truck',
+  'Plumbing', 'HVAC', 'Electrical', 'Roofing', 'Landscaping / Lawn', 'Cleaning',
+  'Painting', 'Flooring', 'Remodeling / Construction', 'Welding / Fabrication', 'Handyman',
+  'Auto detailing', 'Auto repair', 'Towing',
+  'Salon / Barber', 'Spa / Nails', 'Gym / Fitness', 'Med spa',
+  'Dentist', 'Chiropractor', 'Physical therapy', 'Medical / Clinic',
+  'Real estate', 'Insurance', 'Law firm', 'Accounting / Tax', 'Financial advisor',
+  'Retail / Boutique', 'E-commerce / Product', 'Photographer', 'Freelance / Creative',
+  'Marketing / Agency', 'Home services (other)', 'Professional services (other)', 'Other'
+];
+function getIndustries() {
+  try { const s = JSON.parse(localStorage.getItem('mbm_industries')); if (Array.isArray(s) && s.length) return s; } catch {}
+  return DEFAULT_INDUSTRIES.slice();
+}
+function saveIndustries(list) { try { localStorage.setItem('mbm_industries', JSON.stringify(list)); } catch {} }
+function addIndustry(name) {
+  name = (name || '').trim();
+  if (!name) return getIndustries();
+  const list = getIndustries();
+  if (!list.some(i => i.toLowerCase() === name.toLowerCase())) { list.splice(list.length - 1, 0, name); saveIndustries(list); } // keep "Other" last
+  return getIndustries();
+}
+// Build the <option> list for an industry <select>. Adds the selected value if it's not in the list.
+function industryOptions(selected) {
+  let list = getIndustries();
+  if (selected && !list.some(i => i.toLowerCase() === selected.toLowerCase())) list = addIndustry(selected);
+  return '<option value="">— Select industry —</option>'
+    + list.map(i => '<option value="' + i.replace(/"/g, '&quot;') + '"' + (selected && i.toLowerCase() === selected.toLowerCase() ? ' selected' : '') + '>' + i + '</option>').join('')
+    + '<option value="__add__">➕ Add new industry…</option>';
+}
+function fillIndustrySelect(el, selected) { if (el) el.innerHTML = industryOptions(selected); }
+// onchange handler shared by every industry dropdown: intercept the "add new" choice.
+function onIndustryChange(el) {
+  if (!el) return;
+  if (el.value === '__add__') {
+    const name = prompt('New industry name:');
+    if (name && name.trim()) { addIndustry(name.trim()); fillIndustrySelect(el, name.trim()); }
+    else { fillIndustrySelect(el, ''); }
+  }
+}
+
+// ── Digital issues checklist ───────────────────────────────
+const DIGITAL_ISSUES = [
+  'No website', 'Weak / outdated website', 'Not on Google (no profile)', 'Poor Google profile',
+  'Few / no reviews', 'Not running ads', 'No social media', 'Inactive social',
+  'Not ranking / no SEO', 'No online booking', 'Inconsistent branding', 'No email / follow-up'
+];
+function issueCheckboxes(idPrefix, selected) {
+  selected = selected || [];
+  return DIGITAL_ISSUES.map((iss, i) =>
+    '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:2px 0">'
+    + '<input type="checkbox" class="' + idPrefix + '" value="' + iss.replace(/"/g, '&quot;') + '" style="width:auto;margin-bottom:0"'
+    + (selected.indexOf(iss) >= 0 ? ' checked' : '') + '> ' + iss + '</label>'
+  ).join('');
+}
+function collectIssues(idPrefix) {
+  return Array.from(document.querySelectorAll('.' + idPrefix)).filter(c => c.checked).map(c => c.value);
+}
+
+// ── Contact status (keeps people in the pipeline without actively chasing) ──
+const STATUS_LABELS = { active: 'Active', callback: 'Call back', paused: 'Paused', no: 'Said no' };
+const STATUS_COLORS = { active: '#16a34a', callback: '#2563eb', paused: '#d97706', no: '#9E948A' };
+function statusOptions(sel) {
+  sel = sel || 'active';
+  return Object.keys(STATUS_LABELS).map(k => '<option value="' + k + '"' + (k === sel ? ' selected' : '') + '>' + STATUS_LABELS[k] + '</option>').join('');
+}
+async function setStatus(id, status) {
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(x => x.id === id);
+  if (!c) return;
+  c.status = status;
+  if (status === 'callback') {
+    const d = prompt('Call back when? (optional — e.g. Jul 20, next Tuesday)', c.callback_date || '');
+    if (d !== null) c.callback_date = d.trim();
+  }
+  lsSet('contacts', contacts);
+  await saveContact_DB(c);
+  allContacts = contacts;
+  renderContacts(allContacts);
+  renderPipeline(allContacts);
+  updateStats(allContacts);
+  toast('Marked "' + (STATUS_LABELS[status] || status) + '"');
+}
+
+function openAddContact() {
+  document.getElementById('ac-edit-id').value = '';
+  document.getElementById('ac-modal-title').textContent = 'Add contact';
+  const card = document.getElementById('ac-autofill-card'); if (card) card.style.display = 'block';
+  ['ac-name','ac-biz','ac-phone','ac-email','ac-source','ac-website','ac-facebook','ac-instagram','ac-notes','ac-autofill'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('ac-stage').value = 'prospect';
+  fillIndustrySelect(document.getElementById('ac-industry'), '');
+  const box = document.getElementById('ac-issues');
+  if (box) box.innerHTML = issueCheckboxes('ac-issue', []);
+  openModal('add-contact-modal');
+}
+
+// Edit an existing contact — same modal, just pre-filled.
+function openEditContact(id) {
+  const c = (lsGet('contacts') || []).find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('ac-edit-id').value = id;
+  document.getElementById('ac-modal-title').textContent = 'Edit contact';
+  const card = document.getElementById('ac-autofill-card'); if (card) card.style.display = 'none';
+  document.getElementById('ac-name').value = c.name || '';
+  document.getElementById('ac-biz').value = c.business || '';
+  fillIndustrySelect(document.getElementById('ac-industry'), c.industry || '');
+  document.getElementById('ac-phone').value = c.phone || '';
+  document.getElementById('ac-email').value = c.email || '';
+  document.getElementById('ac-stage').value = c.stage || 'prospect';
+  document.getElementById('ac-source').value = c.source || '';
+  document.getElementById('ac-website').value = c.website || '';
+  document.getElementById('ac-facebook').value = c.facebook || '';
+  document.getElementById('ac-instagram').value = c.instagram || '';
+  document.getElementById('ac-notes').value = c.notes || '';
+  const box = document.getElementById('ac-issues');
+  if (box) box.innerHTML = issueCheckboxes('ac-issue', c.issues || []);
+  closeModal('profile-modal');
+  openModal('add-contact-modal');
+}
+
+async function saveContact() {
+  const name = document.getElementById('ac-name').value.trim();
+  if (!name) { toast('Add a name'); return; }
+  const editId = document.getElementById('ac-edit-id').value;
+  const fields = {
+    name,
+    business: document.getElementById('ac-biz').value.trim(),
+    industry: (document.getElementById('ac-industry').value === '__add__' ? '' : document.getElementById('ac-industry').value).trim(),
+    issues: collectIssues('ac-issue'),
+    phone: document.getElementById('ac-phone').value.trim(),
+    email: document.getElementById('ac-email').value.trim(),
+    stage: document.getElementById('ac-stage').value,
+    source: document.getElementById('ac-source').value.trim(),
+    website: document.getElementById('ac-website').value.trim(),
+    facebook: document.getElementById('ac-facebook').value.trim(),
+    instagram: document.getElementById('ac-instagram').value.trim(),
+    notes: document.getElementById('ac-notes').value.trim()
+  };
+  let contact;
+  if (editId) {
+    const contacts = lsGet('contacts') || [];
+    contact = contacts.find(x => x.id === parseInt(editId));
+    if (!contact) return;
+    Object.assign(contact, fields);
+    lsSet('contacts', contacts);
+  } else {
+    contact = Object.assign({
+      id: Date.now(),
+      precall_input: document.getElementById('ac-autofill').value.trim(),
+      log: [], last_contact: null, next_action: '', status: 'active',
+      created_at: new Date().toISOString(), enriched: false
+    }, fields);
+  }
+  await saveContact_DB(contact);
+  closeModal('add-contact-modal');
+  document.getElementById('ac-edit-id').value = '';
+  toast(editId ? 'Contact updated' : (name + ' added'));
+  allContacts = await getContacts();
+  renderContacts(allContacts);
+  renderPipeline(allContacts);
+  updateStats(allContacts);
+  if (!editId) setTimeout(() => enrichContact(contact), 1000);
+}
+
+// Read text off uploaded screenshots (in-browser OCR), drop it into the autofill box, then autofill.
+async function ocrScreenshots(input) {
+  const files = Array.from(input.files || []);
+  if (!files.length) return;
+  const statusEl = document.getElementById('ac-ocr-status');
+  statusEl.style.display = 'block';
+
+  if (typeof Tesseract === 'undefined') {
+    statusEl.textContent = 'Screenshot reader is still loading — try again in a moment, or paste the text instead.';
+    input.value = '';
+    return;
+  }
+
+  const box = document.getElementById('ac-autofill');
+  let collected = '';
+  for (let i = 0; i < files.length; i++) {
+    statusEl.textContent = '📷 Reading screenshot ' + (i + 1) + ' of ' + files.length + '...';
+    try {
+      const { data } = await Tesseract.recognize(files[i], 'eng');
+      if (data && data.text) collected += '\n' + data.text.trim();
+    } catch (e) { /* skip a failed image */ }
+  }
+
+  input.value = ''; // allow re-uploading the same file later
+  if (!collected.trim()) {
+    statusEl.textContent = 'Could not read text from that image — try a clearer screenshot or paste the text.';
+    return;
+  }
+  box.value = (box.value ? box.value + '\n' : '') + collected.trim();
+  statusEl.textContent = '✓ Read the screenshot — filling the fields...';
+  await autofillContact();
+  statusEl.style.display = 'none';
+}
+
+// Tolerant JSON reader — the AI sometimes wraps its answer in extra words or fences.
+// Grab from the first { to the last } and parse that. Returns null if it truly can't.
+function parseLooseJSON(raw) {
+  if (!raw) return null;
+  let s = String(raw).replace(/```json|```/g, '').trim();
+  const a = s.indexOf('{'), b = s.lastIndexOf('}');
+  if (a >= 0 && b > a) s = s.slice(a, b + 1);
+  try { return JSON.parse(s); } catch (e) {}
+  // Last resort: strip trailing commas and retry
+  try { return JSON.parse(s.replace(/,\s*([}\]])/g, '$1')); } catch (e) {}
+  return null;
+}
+
+// Pull contact details out of pasted text using plain pattern-matching.
+// 100% free, instant, runs in the browser — no AI, no keys, no quota.
+function extractFromPaste(blob) {
+  const out = { name:'', business:'', industry:'', phone:'', email:'', website:'', facebook:'', instagram:'' };
+  const lines = blob.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+  // Email
+  const em = blob.match(/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/);
+  if (em) out.email = em[0];
+
+  // Phone — a phone-shaped number (parens/separators), else a bare 10-digit run
+  const ph = blob.match(/(?:\+?1[\s.\-]?)?(?:\(\d{3}\)|\d{3})[\s.\-]\d{3}[\s.\-]\d{4}/)
+          || blob.match(/\b\d{10}\b/);
+  if (ph) out.phone = ph[0].trim();
+
+  // Instagram — a profile link, else an @handle
+  const ig = blob.match(/instagram\.com\/([A-Za-z0-9_.]+)/i);
+  if (ig) out.instagram = '@' + ig[1].replace(/[._]+$/, '');
+  else { const at = blob.match(/(?:^|\s)@([A-Za-z0-9_.]{2,30})\b/); if (at) out.instagram = '@' + at[1]; }
+
+  // Facebook page
+  const fb = blob.match(/(?:facebook\.com|fb\.com)\/([A-Za-z0-9_.\-]+)/i);
+  if (fb && !/sharer|dialog|profile\.php|events|groups/i.test(fb[0])) out.facebook = 'facebook.com/' + fb[1];
+
+  // Website — the first real domain that isn't a social / search / review site
+  const bad = /instagram|facebook|fb\.com|google|goo\.gl|maps|yelp|linkedin|twitter|x\.com|tiktok|youtube|\.png|\.jpe?g|\.gif|schema\.org|w3\.org|gstatic|googleapis|example\.com/i;
+  const urlRe = /\b(?:https?:\/\/)?(?:www\.)?([a-z0-9\-]+(?:\.[a-z0-9\-]+)+)(?:\/[^\s"'<>]*)?/gi;
+  let m;
+  while ((m = urlRe.exec(blob))) {
+    const full = m[0].replace(/[).,;]+$/, '');
+    if (bad.test(full)) continue;
+    const host = full.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0];
+    const tld = host.split('.').pop();
+    if (!/^[a-z]{2,}$/i.test(tld)) continue; // reject "4.8" (rating) and "314.555.0199" (phone)
+    out.website = full.startsWith('http') ? full : 'https://' + full;
+    break;
+  }
+
+  // Labeled fields like "Business: Valley Park Welding" or "Category - Welder"
+  const grab = (labels) => {
+    for (const line of lines) {
+      const mm = line.match(/^([A-Za-z][A-Za-z /]{1,24}?)\s*[:\-–]\s*(.+)$/);
+      if (mm) {
+        const key = mm[1].toLowerCase().trim();
+        if (labels.some(l => key === l || key.includes(l))) {
+          const val = mm[2].trim();
+          if (val) return val;
+        }
+      }
+    }
+    return '';
+  };
+  out.name = grab(['name', 'full name', 'contact', 'contact name', 'owner', 'primary contact']);
+  out.business = grab(['business', 'business name', 'company', 'company name', 'organization', 'org', 'dba']);
+  out.industry = grab(['industry', 'category', 'categories', 'type', 'type of business', 'business type']);
+
+  const looksContact = (line) => /@|https?:|www\.|\.com|\d{3}[\s.\-]\d{3}/i.test(line);
+  const looksJunk = (line) => /^[★☆⭐]|review|rating|\bopen\b|\bclosed\b|hours|directions|^call$|^website$|^save$|^share$|^\d/i.test(line);
+
+  // Business: prefer a line that names a company (a suffix like LLC/Inc or a trade word).
+  if (!out.business) {
+    const bizKw = /\b(llc|l\.l\.c|inc|corp|corporation|company|\bco\b|ltd|contracting|welding|detailing|roofing|plumbing|electric|hvac|landscap|construction|remodel|services?|group|studio|agency|salon|barber|shop|bakery|cafe|coffee|realty|realtor|law|dental|clinic|fitness|gym|auto|motors|marketing|design|cleaning|movers|moving|painting|flooring|catering)\b/i;
+    for (const line of lines) {
+      if (line.length > 60 || looksContact(line) || looksJunk(line)) continue;
+      if (bizKw.test(line)) { out.business = line; break; }
+    }
+  }
+  // Business fallback: the first clean line (Google profiles lead with the name).
+  if (!out.business) {
+    for (const line of lines.slice(0, 3)) {
+      if (line.length > 60 || looksContact(line) || looksJunk(line) || !/[A-Za-z]/.test(line)) continue;
+      out.business = line;
+      break;
+    }
+  }
+  // Name: a standalone "First Last" line that isn't the business.
+  if (!out.name) {
+    for (const line of lines) {
+      if (line === out.business) continue;
+      if (/^[A-Z][a-z'’\-]+ [A-Z][a-z'’\-]+$/.test(line)) { out.name = line; break; }
+    }
+  }
+
+  // Spoken-language cues (helps voice notes): "met Mike Donnelly", "owns Donnelly Contracting"
+  if (!out.name) {
+    const nm = blob.match(/\b(?:[Mm]et(?:\s+with)?|[Ss]poke\s+(?:to|with)|[Tt]alked\s+to|[Cc]alled|[Cc]alling|[Nn]ame\s+is|[Nn]amed|[Tt]his\s+is)\s+([A-Z][a-z'’\-]+(?:\s+[A-Z][a-z'’\-]+)?)/);
+    if (nm) out.name = nm[1].trim();
+  }
+  if (!out.business) {
+    const bz = blob.match(/\b(?:[Oo]wns|[Rr]uns|[Oo]wner\s+of|[Ww]orks?\s+at|[Ww]orks?\s+for|(?:[Cc]ompany|[Bb]usiness|[Ss]hop|[Ss]tore|[Bb]akery|[Cc]af[eé]|[Rr]estaurant|[Ss]alon|[Ss]tudio|[Aa]gency|[Ff]irm|[Gg]arage|[Gg]ym|[Bb]outique|[Pp]ractice|[Cc]linic|[Pp]lace)\s+(?:called|named|is))\s+([A-Z][A-Za-z0-9'’&.\- ]{1,40}?)(?=[,.;]|\s+(?:needs|wants|is|and|who|they|he|she|in|on|near|located|but|so|downtown|nearby)\b|$)/);
+    if (bz) out.business = bz[1].trim();
+  }
+
+  return out;
+}
+
+function autofillContact() {
+  const blob = document.getElementById('ac-autofill').value.trim();
+  if (!blob) { toast('Paste some info first'); return; }
+  const f = extractFromPaste(blob);
+  // High-confidence fields always fill; name/business/industry only fill blanks
+  // so anything you already typed stays put.
+  const set = (id, val, onlyIfEmpty) => {
+    const el = document.getElementById(id);
+    if (!el || !val) return false;
+    if (onlyIfEmpty && el.value.trim()) return false;
+    el.value = val;
+    return true;
+  };
+  const found = [];
+  if (set('ac-phone', f.phone)) found.push('phone');
+  if (set('ac-email', f.email)) found.push('email');
+  if (set('ac-website', f.website)) found.push('website');
+  if (set('ac-instagram', f.instagram)) found.push('Instagram');
+  if (set('ac-facebook', f.facebook)) found.push('Facebook');
+  if (set('ac-biz', f.business, true)) found.push('business');
+  // industry is a dropdown — add the guessed value as an option and select it (if not already set)
+  const indEl = document.getElementById('ac-industry');
+  if (f.industry && indEl && !indEl.value) { fillIndustrySelect(indEl, f.industry); found.push('industry'); }
+  if (set('ac-name', f.name, true)) found.push('name');
+  toast(found.length ? ('Grabbed: ' + found.join(', ') + ' — review & save') : 'No details spotted — type them in');
+}
+
+async function enrichContact(contact) {
+  if (!contact.business && !contact.name) return;
+  try {
+    const query = contact.business || contact.name;
+    // Check Meta ad library (public)
+    const metaUrl = 'https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=US&q=' + encodeURIComponent(query);
+    // We can't directly fetch Facebook but we flag it for manual check
+    // In production this would use a scraping API
+    // For now just mark as checked
+    const contacts = lsGet('contacts') || [];
+    const idx = contacts.findIndex(c => c.id === contact.id);
+    if (idx >= 0) {
+      contacts[idx].enriched = true;
+      contacts[idx].meta_ads_check_url = metaUrl;
+      lsSet('contacts', contacts);
+    }
+  } catch {}
+}
+
+async function openLogCall(contactId) {
+  const contacts = await getContacts();
+  const c = contacts.find(x => x.id === contactId);
+  if (!c) return;
+  document.getElementById('lc-id').value = contactId;
+  document.getElementById('log-call-name').textContent = c.name;
+  document.getElementById('lc-notes').value = '';
+  document.getElementById('lc-type').value = 'call';
+  document.getElementById('lc-stage').value = '';
+  document.getElementById('lc-status').value = '';
+  document.getElementById('lc-callback').value = '';
+  document.getElementById('lc-callback').style.display = 'none';
+  openModal('log-call-modal');
+}
+
+async function saveCallLog() {
+  const id = parseInt(document.getElementById('lc-id').value);
+  const notes = document.getElementById('lc-notes').value.trim();
+  const type = document.getElementById('lc-type').value;
+  const stageUpdate = document.getElementById('lc-stage').value;
+  const statusUpdate = document.getElementById('lc-status').value;
+  const callback = document.getElementById('lc-callback').value.trim();
+
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(x => x.id === id);
+  if (!c) return;
+  if (!c.log) c.log = [];
+  c.log.unshift({ date: new Date().toISOString().split('T')[0], type, notes, logged: new Date().toISOString() });
+  c.last_contact = new Date().toISOString().split('T')[0];
+  if (stageUpdate) c.stage = stageUpdate;
+  if (statusUpdate) c.status = statusUpdate;
+  if (statusUpdate === 'callback') c.callback_date = callback; else if (statusUpdate) c.callback_date = '';
+  lsSet('contacts', contacts);
+  await saveContact_DB(c);
+  closeModal('log-call-modal');
+  toast('Contact logged');
+  allContacts = contacts;
+  renderContacts(allContacts);
+  renderPipeline(allContacts);
+  updateStats(allContacts);
+  refreshProfileIfOpen(id);
+}
+
+async function generateNextAction(contact, allContacts) {
+  const logSummary = (contact.log || []).slice(0,5).map(l => l.date + ' (' + l.type + '): ' + l.notes).join(' | ');
+  const prompt = 'You are a sales coach for Motion by Movements, a digital marketing agency. '
+    + 'Contact: ' + contact.name + ', ' + (contact.business||'no company') + ', stage: ' + contact.stage + '. '
+    + 'Source: ' + (contact.source||'unknown') + '. Notes: ' + (contact.notes||'none') + '. '
+    + 'Contact history: ' + (logSummary||'no history yet') + '. '
+    + 'Give ONE specific next action in 1-2 sentences. Be direct. Tell exactly what to say or do.';
+
+  try {
+    const res = await fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: prompt, type: 'coach' }) });
+    const data = await res.json();
+    const action = (data.result || '').trim();
+    if (action) {
+      const contacts = lsGet('contacts') || [];
+      const idx = contacts.findIndex(c => c.id === contact.id);
+      if (idx >= 0) {
+        contacts[idx].next_action = action;
+        contacts[idx].next_action_date = new Date().toISOString().split('T')[0];
+        lsSet('contacts', contacts);
+        allContacts = contacts;
+        renderContacts(allContacts);
+        renderPipeline(allContacts);
+      }
+    }
+  } catch {}
+}
+
+
+function toggleEdit(id) {
+  const el = document.getElementById('edit-' + id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function saveEdit(id) {
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(function(x){return x.id === id;});
+  if (!c) return;
+  c.name = document.getElementById('en-' + id).value.trim() || c.name;
+  c.business = document.getElementById('eb-' + id).value.trim();
+  const eind = document.getElementById('eind-' + id);
+  if (eind) c.industry = (eind.value === '__add__' ? (c.industry || '') : eind.value);
+  c.issues = collectIssues('eissue-' + id);
+  c.phone = document.getElementById('ep-' + id).value.trim();
+  c.email = document.getElementById('ee-' + id).value.trim();
+  c.website = document.getElementById('ew-' + id).value.trim();
+  c.instagram = document.getElementById('ei-' + id).value.trim();
+  c.facebook = document.getElementById('ef-' + id).value.trim();
+  c.stage = document.getElementById('es-' + id).value;
+  c.notes = document.getElementById('eno-' + id).value.trim();
+  lsSet('contacts', contacts);
+  await saveContact_DB(c);
+  allContacts = contacts;
+  renderContacts(allContacts);
+  renderPipeline(allContacts);
+  updateStats(allContacts);
+  toast('Contact updated');
+}
+
+async function deleteContact(id) {
+  if (!confirm('Remove this contact?')) return;
+  const contacts = (lsGet('contacts') || []).filter(c => c.id !== id);
+  lsSet('contacts', contacts);
+  allContacts = contacts;
+  renderContacts(allContacts);
+  renderPipeline(allContacts);
+  updateStats(allContacts);
+  await deleteContact_DB(id);
+  toast('Contact removed');
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return 999;
+  return Math.floor((new Date() - new Date(dateStr)) / (1000 * 60 * 60 * 24));
+}
+
+function urgencyColor(contact) {
+  const days = daysSince(contact.last_contact);
+  if (days > 14) return 'hot';
+  if (days > 7) return 'warm';
+  return 'cold';
+}
+
+function contactCardHTML(c) {
+  const stageColor = STAGE_COLORS[c.stage] || '#9E948A';
+  const days = daysSince(c.last_contact);
+  const daysText = days === 999 ? 'Never contacted' : days === 0 ? 'Today' : days + 'd ago';
+  const urgency = urgencyColor(c);
+  const initials = c.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+
+  return '<div class="contact-card" style="border-left-color:' + stageColor + '">'
+    + '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">'
+    + '<div class="contact-avatar" style="background:linear-gradient(135deg,' + stageColor + ',' + stageColor + '99)">' + initials + '</div>'
+    + '<div style="flex:1">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+    + '<div><div class="contact-name" style="cursor:pointer" onclick="openProfile(' + c.id + ')">' + c.name + '</div>'
+    + (c.business ? '<div class="contact-biz">' + c.business + '</div>' : '')
+    + '</div>'
+    + '<div style="display:flex;align-items:center;gap:6px">'
+    + '<div class="urgency-dot ' + urgency + '"></div>'
+    + '<div style="font-size:10px;color:var(--text3);font-weight:600">' + daysText + '</div>'
+    + '</div></div>'
+    + '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center">'
+    + '<span class="stage-pill" style="background:' + stageColor + '22;color:' + stageColor + '">' + (STAGE_LABELS[c.stage]||c.stage) + '</span>'
+    + ((c.status && c.status !== 'active') ? '<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:' + (STATUS_COLORS[c.status]||'#9E948A') + '22;color:' + (STATUS_COLORS[c.status]||'#9E948A') + '">' + (STATUS_LABELS[c.status]||c.status) + ((c.status === 'callback' && c.callback_date) ? ' · ' + c.callback_date : '') + '</span>' : '')
+    + (c.industry ? '<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:#EDE7E0;color:#5C5248">' + c.industry + '</span>' : '')
+    + (c.website ? '<a href="' + c.website + '" target="_blank" style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:#F0EDE8;color:#5C5248;text-decoration:none">🌐 Site</a>' : '')
+    + (c.instagram ? '<a href="https://instagram.com/' + c.instagram.replace('@','') + '" target="_blank" style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:#F0EDE8;color:#C84B11;text-decoration:none">📷 IG</a>' : '')
+    + (c.facebook ? '<a href="' + (c.facebook.startsWith('http') ? c.facebook : 'https://facebook.com/'+c.facebook) + '" target="_blank" style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:#F0EDE8;color:#2563eb;text-decoration:none">👥 FB</a>' : '')
+    + '</div>'
+    + (c.issues && c.issues.length ? '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">' + c.issues.map(function(iss){ return '<span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:999px;background:rgba(220,38,38,0.08);color:var(--red)">⚠ ' + iss + '</span>'; }).join('') + '</div>' : '')
+    + '</div></div>'
+    + (c.next_action ? '<div style="background:var(--burn-light);border-radius:var(--r-sm);padding:8px 10px;margin-bottom:10px;border-left:2px solid var(--burn)">'
+      + '<div class="lbl lbl-burn" style="margin-bottom:3px">Next move</div>'
+      + '<div style="font-size:12px;color:var(--text);line-height:1.5">' + c.next_action + '</div>'
+      + '</div>' : '')
+    + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    + (c.phone ? '<a href="tel:' + c.phone + '" style="flex:1;min-width:70px;display:flex;align-items:center;justify-content:center;padding:8px;border:1.5px solid var(--border);border-radius:var(--pill);font-size:11px;font-weight:700;color:var(--green);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase">📞 Call</a>' : '')
+    + (c.phone ? '<a href="sms:' + c.phone + '" style="flex:1;min-width:70px;display:flex;align-items:center;justify-content:center;padding:8px;border:1.5px solid var(--border);border-radius:var(--pill);font-size:11px;font-weight:700;color:var(--text2);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase">💬 Text</a>' : '')
+    + '<button class="btn-burn btn-sm" style="flex:1;min-width:80px" onclick="openLogCall(' + c.id + ')">Log contact</button>'
+    + '<button class="btn-danger btn-sm" onclick="deleteContact(' + c.id + ')" style="padding:8px 10px;text-transform:none;letter-spacing:0">✕</button>'
+    + '</div>'
+    + '<div style="display:flex;gap:6px;margin-top:8px">'
+    + '<button class="btn-ghost btn-sm" style="flex:1" onclick="openEditContact(' + c.id + ')">✏ Edit</button>'
+    + '<button class="btn-black btn-sm" style="flex:1" onclick="openPreCall(' + c.id + ')">🧠 Pre-Call Brief</button>'
+    + '</div>'
+    + (c.precall ? '<div style="margin-top:10px;padding:12px;background:linear-gradient(135deg,rgba(200,75,17,0.06),rgba(200,75,17,0.02));border-radius:var(--r-sm);border-left:3px solid var(--burn)"><div class="lbl lbl-burn" style="margin-bottom:6px">Pre-Call Brief ready' + (c.precall_date ? ' · ' + c.precall_date : '') + '</div><div style="font-size:12px;color:var(--text);line-height:1.6">' + (c.precall_hook || 'Tap to view your brief before the call.') + '</div><button class="btn-sm btn-burn" style="margin-top:8px;font-size:10px" onclick="openPreCallOutput(' + c.id + ')">View full brief</button></div>' : '')
+    + latestNoteHTML(c)
+    + '</div>';
+}
+
+// Compact "latest note" preview shown on every card + call-list item.
+function latestNoteHTML(c) {
+  if (!c.log || !c.log.length) return '';
+  const l = c.log[0];
+  return '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">'
+    + '<div class="lbl" style="margin-bottom:4px">Latest note</div>'
+    + '<div class="activity-time">' + l.date + ' · ' + l.type + '</div>'
+    + '<div class="activity-text">' + (l.notes || '') + '</div>'
+    + '<div style="font-size:11px;color:var(--burn);font-weight:600;margin-top:5px;cursor:pointer" onclick="openProfile(' + c.id + ')">'
+    + (c.log.length > 1 ? 'View all ' + c.log.length + ' notes →' : 'Open profile →') + '</div>'
+    + '</div>';
+}
+
+// ── Contact profile (click a name to open) ─────────────────
+let currentProfileId = null;
+function openProfile(id) {
+  const c = (lsGet('contacts') || []).find(x => x.id === id);
+  if (!c) return;
+  currentProfileId = id;
+  document.getElementById('profile-body').innerHTML = renderProfile(c);
+  openModal('profile-modal');
+}
+function refreshProfileIfOpen(id) {
+  if (currentProfileId !== id) return;
+  if (!document.getElementById('profile-modal').classList.contains('open')) return;
+  const c = (lsGet('contacts') || []).find(x => x.id === id);
+  if (c) document.getElementById('profile-body').innerHTML = renderProfile(c);
+}
+function renderProfile(c) {
+  const stageColor = STAGE_COLORS[c.stage] || '#9E948A';
+  const st = c.status || 'active';
+  let h = '';
+  h += '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:26px;letter-spacing:0.06em;line-height:1.1">' + c.name + '</div>';
+  if (c.business) h += '<div style="font-size:13px;color:var(--text2);margin-bottom:8px">' + c.business + '</div>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">';
+  h += '<span class="stage-pill" style="background:' + stageColor + '22;color:' + stageColor + '">' + (STAGE_LABELS[c.stage] || c.stage) + '</span>';
+  if (st !== 'active') h += '<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:' + (STATUS_COLORS[st] || '#9E948A') + '22;color:' + (STATUS_COLORS[st] || '#9E948A') + '">' + (STATUS_LABELS[st] || st) + ((st === 'callback' && c.callback_date) ? ' · ' + c.callback_date : '') + '</span>';
+  if (c.industry) h += '<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:#EDE7E0;color:#5C5248">' + c.industry + '</span>';
+  h += '</div>';
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">';
+  if (c.phone) h += '<a href="tel:' + c.phone + '" style="flex:1;min-width:70px;text-align:center;padding:9px;border:1.5px solid var(--border);border-radius:var(--pill);font-size:11px;font-weight:700;color:var(--green);text-decoration:none;text-transform:uppercase">📞 Call</a>';
+  if (c.phone) h += '<a href="sms:' + c.phone + '" style="flex:1;min-width:70px;text-align:center;padding:9px;border:1.5px solid var(--border);border-radius:var(--pill);font-size:11px;font-weight:700;color:var(--text2);text-decoration:none;text-transform:uppercase">💬 Text</a>';
+  if (c.email) h += '<a href="mailto:' + c.email + '" style="flex:1;min-width:70px;text-align:center;padding:9px;border:1.5px solid var(--border);border-radius:var(--pill);font-size:11px;font-weight:700;color:#2563eb;text-decoration:none;text-transform:uppercase">✉ Email</a>';
+  h += '</div>';
+  h += '<div style="display:flex;gap:6px;margin-bottom:12px">';
+  h += '<button class="btn-burn btn-sm" style="flex:1" onclick="openLogCall(' + c.id + ')">Log contact</button>';
+  h += '<button class="btn-ghost btn-sm" style="flex:1" onclick="openEditContact(' + c.id + ')">✏ Edit</button>';
+  h += '<button class="btn-black btn-sm" style="flex:1" onclick="openPreCall(' + c.id + ')">🧠 Brief</button>';
+  h += '</div>';
+  const details = [];
+  if (c.phone) details.push(['Phone', c.phone]);
+  if (c.email) details.push(['Email', c.email]);
+  if (c.website) details.push(['Website', '<a href="' + c.website + '" target="_blank" style="color:var(--burn)">' + c.website + '</a>']);
+  if (c.instagram) details.push(['Instagram', c.instagram]);
+  if (c.facebook) details.push(['Facebook', c.facebook]);
+  if (c.source) details.push(['Source', c.source]);
+  if (details.length) {
+    h += '<div style="background:#F8F4F0;border-radius:var(--r-sm);padding:10px 12px;margin-bottom:12px">'
+      + details.map(d => '<div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:3px 0"><span style="color:var(--text3)">' + d[0] + '</span><span style="text-align:right;word-break:break-word">' + d[1] + '</span></div>').join('')
+      + '</div>';
+  }
+  if (c.issues && c.issues.length) h += '<div class="lbl" style="margin-bottom:4px">Digital issues</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">' + c.issues.map(iss => '<span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:999px;background:rgba(220,38,38,0.08);color:var(--red)">⚠ ' + iss + '</span>').join('') + '</div>';
+  if (c.notes) h += '<div class="lbl" style="margin-bottom:4px">Notes</div><div style="font-size:13px;line-height:1.6;color:var(--text);margin-bottom:12px">' + c.notes + '</div>';
+  h += '<div class="lbl" style="margin-bottom:6px">Full history (' + ((c.log && c.log.length) || 0) + ')</div>';
+  if (c.log && c.log.length) {
+    h += c.log.map((l, idx) => '<div class="activity-item" style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">'
+      + '<div style="flex:1;min-width:0"><div class="activity-time">' + l.date + ' · ' + l.type + '</div><div class="activity-text">' + (l.notes || '') + '</div></div>'
+      + '<div style="display:flex;gap:4px;flex-shrink:0">'
+      + '<button class="btn-ghost btn-sm" style="padding:4px 8px" onclick="editLogEntry(' + c.id + ',' + idx + ')">✏</button>'
+      + '<button class="btn-danger btn-sm" style="padding:4px 8px" onclick="deleteLogEntry(' + c.id + ',' + idx + ')">✕</button>'
+      + '</div></div>').join('');
+  } else {
+    h += '<div style="font-size:12px;color:var(--text3);margin-bottom:8px">No activity logged yet.</div>';
+  }
+  return h;
+}
+
+// Edit / delete an individual logged note.
+async function editLogEntry(id, idx) {
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(x => x.id === id);
+  if (!c || !c.log || !c.log[idx]) return;
+  const updated = prompt('Edit this note:', c.log[idx].notes || '');
+  if (updated === null) return;
+  c.log[idx].notes = updated.trim();
+  lsSet('contacts', contacts);
+  await saveContact_DB(c);
+  allContacts = contacts;
+  renderContacts(allContacts);
+  renderPipeline(allContacts);
+  refreshProfileIfOpen(id);
+  toast('Note updated');
+}
+async function deleteLogEntry(id, idx) {
+  if (!confirm('Delete this note?')) return;
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(x => x.id === id);
+  if (!c || !c.log) return;
+  c.log.splice(idx, 1);
+  lsSet('contacts', contacts);
+  await saveContact_DB(c);
+  allContacts = contacts;
+  renderContacts(allContacts);
+  renderPipeline(allContacts);
+  refreshProfileIfOpen(id);
+  toast('Note deleted');
+}
+
+// ══════════════════════════════════════
+// PIPELINE
+// ══════════════════════════════════════
+async function loadPipeline() {
+  allContacts = await getContacts();
+  fillPipelineIndustryFilter();
+  renderPipeline(allContacts);
+  updateStats(allContacts);
+}
+
+// Fill the pipeline's industry filter with the industries actually in use.
+function fillPipelineIndustryFilter() {
+  const el = document.getElementById('pipeline-industry-filter');
+  if (!el) return;
+  const used = Array.from(new Set(allContacts.map(c => c.industry).filter(Boolean))).sort();
+  const prev = el.value;
+  el.innerHTML = '<option value="all">All industries</option>' + used.map(i => '<option value="' + i.replace(/"/g, '&quot;') + '">' + i + '</option>').join('');
+  if (prev && used.indexOf(prev) >= 0) el.value = prev;
+}
+
+// Apply the three pipeline filters together (stage + industry + call-focus).
+function pipelineFiltered(list) {
+  list = list || allContacts;
+  return list.filter(c => {
+    const st = c.status || 'active';
+    if (currentStageFilter !== 'all' && c.stage !== currentStageFilter) return false;
+    if (currentIndustryFilter !== 'all' && (c.industry || '') !== currentIndustryFilter) return false;
+    if (currentCallFilter === 'active' && st !== 'active') return false;
+    if (currentCallFilter === 'due' && (st !== 'active' || daysSince(c.last_contact) < 7)) return false;
+    if (currentCallFilter === 'never' && (st !== 'active' || c.last_contact)) return false;
+    if (currentCallFilter === 'callback' && st !== 'callback') return false;
+    if (currentCallFilter === 'paused' && st !== 'paused') return false;
+    if (currentCallFilter === 'no' && st !== 'no') return false;
+    return true;
+  });
+}
+
+function filterStage(stage, btn) {
+  currentStageFilter = stage;
+  document.querySelectorAll('#page-pipeline .bt').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPipeline(allContacts);
+}
+
+function applyPipelineFilters() {
+  currentIndustryFilter = document.getElementById('pipeline-industry-filter').value;
+  currentCallFilter = document.getElementById('pipeline-call-filter').value;
+  renderPipeline(allContacts);
+}
+
+function renderPipeline(contacts) {
+  fillPipelineIndustryFilter();
+  const filtered = pipelineFiltered(contacts);
+  renderContactList('pipeline-list', filtered);
+  document.getElementById('pipeline-count').textContent = filtered.length + ' contact' + (filtered.length !== 1 ? 's' : '');
+}
+
+function updateStats(contacts) {
+  document.getElementById('stat-total').textContent = contacts.length;
+  document.getElementById('stat-active').textContent = contacts.filter(c => c.stage !== 'client' && c.stage !== 'prospect').length;
+  document.getElementById('stat-clients').textContent = contacts.filter(c => c.stage === 'client').length;
+}
+
+function renderContactList(containerId, contacts) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!contacts.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>No contacts here</div>'; return; }
+  const sorted = [...contacts].sort((a, b) => {
+    const stageOrder = { close: 0, conversation: 1, proposal: 2, contacted: 3, client: 4, prospect: 5 };
+    return (stageOrder[a.stage] || 5) - (stageOrder[b.stage] || 5);
+  });
+  el.innerHTML = sorted.map(contactCardHTML).join('');
+}
+
+// ══════════════════════════════════════
+// CONTACTS PAGE
+// ══════════════════════════════════════
+async function loadContacts() {
+  allContacts = await getContacts();
+  renderContacts(allContacts);
+}
+
+function renderContacts(contacts) {
+  const el = document.getElementById('contacts-list');
+  if (!el) return;
+  document.getElementById('contacts-count').textContent = contacts.length + ' contacts';
+  if (!contacts.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">👥</div>No contacts yet — add one or import a CSV</div>'; return; }
+  el.innerHTML = contacts.map(contactCardHTML).join('');
+}
+
+function searchContacts() {
+  const q = document.getElementById('contact-search').value.toLowerCase();
+  const filtered = allContacts.filter(c =>
+    (c.name||'').toLowerCase().includes(q) ||
+    (c.business||'').toLowerCase().includes(q) ||
+    (c.notes||'').toLowerCase().includes(q) ||
+    (c.stage||'').toLowerCase().includes(q) ||
+    (c.source||'').toLowerCase().includes(q)
+  );
+  renderContacts(filtered);
+}
+
+function showCSVUpload() {
+  const el = document.getElementById('csv-upload-area');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// Split one CSV line, respecting quotes (so commas inside "quoted, fields" don't break columns).
+function parseCSVLine(line) {
+  const out = []; let cur = ''; let q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+      else if (ch === '"') { q = false; }
+      else cur += ch;
+    } else {
+      if (ch === '"') q = true;
+      else if (ch === ',') { out.push(cur); cur = ''; }
+      else cur += ch;
+    }
+  }
+  out.push(cur);
+  return out.map(s => s.trim());
+}
+
+async function processCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) { toast('CSV needs a header row and data'); return; }
+
+  const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z]/g, ''));
+  const find = (preds) => headers.findIndex(h => preds.some(p => h.includes(p)));
+  const nameIdx = headers.findIndex(h => h.includes('name') && !h.includes('business') && !h.includes('company'));
+  const bizIdx = find(['business', 'company', 'biz', 'organization', 'org', 'dba']);
+  const industryIdx = find(['industry', 'category', 'type']);
+  const phoneIdx = find(['phone', 'mobile', 'cell', 'tel']);
+  const emailIdx = find(['email', 'mail']);
+  const websiteIdx = find(['website', 'url', 'site', 'web']);
+  const sourceIdx = find(['source', 'referr', 'howfound']);
+  const notesIdx = find(['note', 'comment', 'description']);
+  const get = (cols, idx) => (idx >= 0 && cols[idx] ? cols[idx] : '');
+
+  const contacts = lsGet('contacts') || [];
+  const newOnes = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCSVLine(lines[i]);
+    const name = get(cols, nameIdx) || get(cols, bizIdx); // fall back to business if no name column
+    if (!name) continue;
+    const contact = {
+      id: Date.now() + i,
+      name: get(cols, nameIdx) || name,
+      business: get(cols, bizIdx),
+      industry: get(cols, industryIdx),
+      phone: get(cols, phoneIdx),
+      email: get(cols, emailIdx),
+      website: get(cols, websiteIdx),
+      source: get(cols, sourceIdx),
+      notes: get(cols, notesIdx),
+      stage: 'prospect',
+      log: [],
+      last_contact: null,
+      next_action: '',
+      created_at: new Date().toISOString()
+    };
+    contacts.unshift(contact);
+    newOnes.push(contact);
+  }
+
+  lsSet('contacts', contacts);
+  allContacts = contacts;
+  renderContacts(allContacts);
+  renderPipeline(allContacts);
+  updateStats(allContacts);
+  document.getElementById('csv-upload-area').style.display = 'none';
+  toast(newOnes.length + ' contacts imported');
+
+  // Push the imported contacts up to the cloud so they sync across devices.
+  if (newOnes.length) {
+    const wsId = currentWorkspace ? currentWorkspace.id : 'default';
+    setSync('syncing');
+    Promise.all(newOnes.map(c => {
+      c.workspace_id = wsId;
+      c.updated_at = new Date().toISOString();
+      return sbFetch('/rest/v1/mbm_contacts', { method: 'POST', headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(c) }).then(r => r.ok).catch(() => false);
+    })).then(oks => setSync(oks.every(Boolean) ? 'ok' : 'err'));
+  }
+}
+
+// ══════════════════════════════════════
+// CALL LIST
+// ══════════════════════════════════════
+async function generateCallList() {
+  const el = document.getElementById('call-list-output');
+  el.innerHTML = '<div class="empty">Ranking your contacts...</div>';
+
+  const contacts = await getContacts();
+  if (!contacts.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📞</div>Add contacts first</div>';
+    return;
+  }
+
+  // Score each contact
+  const scored = contacts.filter(c => {
+    const st = c.status || 'active';
+    return st !== 'paused' && st !== 'no'; // don't surface parked/declined leads
+  }).map(c => {
+    let score = 0;
+    const days = daysSince(c.last_contact);
+    const stageScore = { close: 50, proposal: 40, conversation: 30, contacted: 20, prospect: 10, client: 5 };
+    score += stageScore[c.stage] || 0;
+    if (days > 14) score += 30;
+    else if (days > 7) score += 15;
+    else if (days > 3) score += 5;
+    if (c.next_action) score += 10;
+    if (!c.last_contact) score += 20;
+    return { ...c, score };
+  }).sort((a, b) => b.score - a.score).slice(0, 8);
+
+  el.innerHTML = scored.map((c, i) => {
+    const days = daysSince(c.last_contact);
+    const daysText = days === 999 ? 'Never contacted' : days === 0 ? 'Contacted today' : days + ' days since last contact';
+    const stageColor = STAGE_COLORS[c.stage] || '#9E948A';
+    return '<div class="call-item">'
+      + '<div class="call-num">' + (i + 1) + '</div>'
+      + '<div style="flex:1">'
+      + '<div style="font-size:15px;font-weight:700;margin-bottom:2px;cursor:pointer" onclick="openProfile(' + c.id + ')">' + c.name + '</div>'
+      + (c.business ? '<div style="font-size:12px;color:var(--text2);margin-bottom:4px">' + c.business + '</div>' : '')
+      + '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">'
+      + '<span class="stage-pill" style="background:' + stageColor + '22;color:' + stageColor + '">' + (STAGE_LABELS[c.stage]||c.stage) + '</span>'
+      + ((c.status && c.status !== 'active') ? '<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px;background:' + (STATUS_COLORS[c.status]||'#9E948A') + '22;color:' + (STATUS_COLORS[c.status]||'#9E948A') + '">' + (STATUS_LABELS[c.status]||c.status) + '</span>' : '')
+      + '<span style="font-size:10px;color:var(--text3)">' + daysText + '</span>'
+      + '</div>'
+      + (c.log && c.log.length ? '<div style="font-size:12px;color:var(--text);line-height:1.5;margin-bottom:8px;background:#F8F4F0;border-radius:var(--r-sm);padding:6px 10px"><span style="color:var(--text3);font-weight:600">Last note:</span> ' + (c.log[0].notes || '') + '</div>' : '')
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
+      + (c.phone ? '<a href="tel:' + c.phone + '" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--pill);font-size:10px;font-weight:700;color:var(--green);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase">📞 Call</a>' : '')
+      + (c.phone ? '<a href="sms:' + c.phone + '" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--pill);font-size:10px;font-weight:700;color:var(--text2);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase">💬 Text</a>' : '')
+      + (c.email ? '<a href="mailto:' + c.email + '" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--pill);font-size:10px;font-weight:700;color:#2563eb;text-decoration:none;letter-spacing:0.08em;text-transform:uppercase">✉ Email</a>' : '')
+      + '<button class="btn-black btn-sm" onclick="openPreCallInstant(' + c.id + ')">🧠 Strategy</button>'
+      + '<button class="btn-burn btn-sm" onclick="openLogCall(' + c.id + ')">Log</button>'
+      + '</div></div></div>';
+  }).join('');
+}
+
+// ══════════════════════════════════════
+// VOICE INPUT
+// ══════════════════════════════════════
+function toggleVoice() {
+  if (isListening) {
+    stopListening();
+  } else {
+    startListening();
+  }
+}
+
+function startListening() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    toast('Voice not supported in this browser');
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = (e) => {
+    let transcript = '';
+    for (let i = 0; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    voiceTranscript = transcript;
+    document.getElementById('voice-transcript').textContent = transcript;
+    document.getElementById('voice-transcript-area').style.display = 'block';
+  };
+
+  recognition.onerror = () => stopListening();
+  recognition.onend = () => { if (isListening) stopListening(); };
+
+  recognition.start();
+  isListening = true;
+  document.getElementById('voice-btn').classList.add('listening');
+  document.getElementById('voice-btn').textContent = '⏹';
+  document.getElementById('voice-status').textContent = 'Listening... tap to stop';
+}
+
+function stopListening() {
+  if (recognition) recognition.stop();
+  isListening = false;
+  document.getElementById('voice-btn').classList.remove('listening');
+  document.getElementById('voice-btn').textContent = '🎙';
+  document.getElementById('voice-status').textContent = voiceTranscript ? 'Got it — review and save below' : 'Tap to start speaking';
+}
+
+function clearVoice() {
+  voiceTranscript = '';
+  extractedContact = null;
+  document.getElementById('voice-transcript-area').style.display = 'none';
+  document.getElementById('voice-extracted').style.display = 'none';
+  document.getElementById('voice-status').textContent = 'Tap to start speaking';
+}
+
+// Free & instant — runs the spoken transcript through the same pattern-matcher
+// the paste Autofill uses. No AI, no key.
+function processVoiceLog() {
+  if (!voiceTranscript || !voiceTranscript.trim()) { toast('Say something first'); return; }
+  const f = extractFromPaste(voiceTranscript);
+  extractedContact = {
+    name: f.name || '',
+    business: f.business || '',
+    industry: f.industry || '',
+    phone: f.phone || '',
+    email: f.email || '',
+    website: f.website || '',
+    instagram: f.instagram || '',
+    facebook: f.facebook || '',
+    stage: 'prospect',
+    notes: voiceTranscript.trim()
+  };
+
+  document.getElementById('voice-extracted-body').innerHTML =
+    '<div style="font-size:15px;font-weight:700;margin-bottom:8px">' + (extractedContact.name || extractedContact.business || 'New contact') + '</div>'
+    + (extractedContact.business && extractedContact.name ? '<div style="font-size:13px;color:var(--text2);margin-bottom:4px">' + extractedContact.business + '</div>' : '')
+    + (extractedContact.phone ? '<div style="font-size:12px;color:var(--text3);margin-bottom:2px">📞 ' + extractedContact.phone + '</div>' : '')
+    + (extractedContact.email ? '<div style="font-size:12px;color:var(--text3);margin-bottom:2px">✉ ' + extractedContact.email + '</div>' : '')
+    + '<div style="background:var(--burn-light);border-radius:var(--r-sm);padding:8px 10px;margin-top:8px;font-size:12px;color:var(--text)"><span style="color:var(--burn);font-weight:600">What you said: </span>' + extractedContact.notes + '</div>';
+
+  document.getElementById('voice-extracted').style.display = 'block';
+}
+
+async function confirmVoiceContact() {
+  if (!extractedContact) return;
+  const contact = {
+    id: Date.now(),
+    name: extractedContact.name || 'Unknown',
+    business: extractedContact.business || '',
+    industry: extractedContact.industry || '',
+    phone: extractedContact.phone || '',
+    email: extractedContact.email || '',
+    website: extractedContact.website || '',
+    facebook: extractedContact.facebook || '',
+    instagram: extractedContact.instagram || '',
+    stage: extractedContact.stage || 'prospect',
+    notes: extractedContact.notes || '',
+    precall_input: extractedContact.notes || '', // the voice note also powers the brief later
+    log: [],
+    last_contact: null,
+    next_action: '',
+    created_at: new Date().toISOString()
+  };
+  await saveContact_DB(contact);
+  allContacts = await getContacts();
+  clearVoice();
+  toast((contact.name !== 'Unknown' ? contact.name : (contact.business || 'Contact')) + ' saved');
+  renderPipeline(allContacts);
+  updateStats(allContacts);
+}
+
+function editVoiceContact() {
+  if (!extractedContact) return;
+  fillIndustrySelect(document.getElementById('ac-industry'), extractedContact.industry || '');
+  const box = document.getElementById('ac-issues');
+  if (box) box.innerHTML = issueCheckboxes('ac-issue', []);
+  document.getElementById('ac-name').value = extractedContact.name || '';
+  document.getElementById('ac-biz').value = extractedContact.business || '';
+  document.getElementById('ac-phone').value = extractedContact.phone || '';
+  document.getElementById('ac-email').value = extractedContact.email || '';
+  document.getElementById('ac-website').value = extractedContact.website || '';
+  document.getElementById('ac-notes').value = extractedContact.notes || '';
+  document.getElementById('ac-autofill').value = extractedContact.notes || '';
+  openModal('add-contact-modal');
+}
+
+// ══════════════════════════════════════
+// INTEL
+// ══════════════════════════════════════
+async function generateIntel() {
+  const el = document.getElementById('intel-output');
+  el.innerHTML = '<div class="empty">Analyzing your pipeline...</div>';
+
+  const contacts = await getContacts();
+  if (!contacts.length) {
+    el.innerHTML = '<div class="empty">Add contacts first</div>';
+    return;
+  }
+
+  const summary = contacts.map(c => {
+    const days = daysSince(c.last_contact);
+    return c.name + ' (' + c.business + ', ' + c.stage + ', last contact: ' + (days === 999 ? 'never' : days + 'd ago') + (c.next_action ? ', next: ' + c.next_action : '') + ')';
+  }).join(' | ');
+
+  const prompt = 'You are a business intelligence coach for Motion by Movements, a digital marketing agency run by Andrew. '
+    + 'Analyze this sales pipeline and give a direct weekly briefing: '
+    + summary
+    + ' Tell him: (1) the 2-3 highest priority contacts and exactly why, (2) any patterns you see in the pipeline, (3) one honest observation about what the data suggests about his sales activity. Be direct and specific. Under 200 words.';
+
+  try {
+    const res = await fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: prompt, type: 'coach' }) });
+    const data = await res.json();
+    const text = (data.result || '').trim();
+
+    el.innerHTML = '<div class="card">'
+      + '<div class="lbl lbl-burn" style="margin-bottom:10px">Week of ' + new Date().toLocaleDateString() + '</div>'
+      + '<div style="font-size:14px;line-height:1.85;color:var(--text)">' + text.split('\n').map(p => '<p style="margin-bottom:10px">' + p + '</p>').join('') + '</div>'
+      + '</div>'
+      + '<div class="card" style="background:#F8F4F0">'
+      + '<div class="lbl" style="margin-bottom:8px">Pipeline snapshot</div>'
+      + Object.entries(contacts.reduce((acc, c) => { acc[c.stage] = (acc[c.stage]||0)+1; return acc; }, {}))
+        .map(([stage, count]) => '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:' + STAGE_COLORS[stage] + ';font-weight:600">' + (STAGE_LABELS[stage]||stage) + '</span><span style="font-weight:700">' + count + '</span></div>').join('')
+      + '</div>';
+  } catch {
+    el.innerHTML = '<div class="empty">Could not generate — try again</div>';
+  }
+}
+
+// ══════════════════════════════════════
+// PRE-CALL BRIEF
+// ══════════════════════════════════════
+// MBM's own service catalog — every opportunity in a brief should map to one of these.
+const MBM_SERVICES = 'Motion by Movements is a done-for-you digital marketing agency (tagline: "Growth is a game, not a guess"). It sells nine services across three tiers. '
+  + 'PRESENTABLE / establish credibility: (1) Website — fast, conversion-optimized sites with clear messaging and a visitor-to-lead path; (2) Google Business Profile — claim/optimize/manage local Maps & Search listings; (3) Social Presence — branded, optimized social profiles with content direction. '
+  + 'VALUABLE / become the obvious choice: (4) Review Management — systems to collect, respond to and showcase reviews; (5) Consistent Content — steady content streams for visibility and top-of-mind awareness; (6) Positioning — sharpen messaging and offers to clarify differentiation. '
+  + 'SCALABLE / turn attention into revenue: (7) Meta Advertising — Facebook/Instagram campaigns to ready-to-buy audiences; (8) AI Systems — documented processes, automations and workflows; (9) Business Strategy — strategy to scale capacity, offers and operations.';
+
+function openPreCall(id) {
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(function(x){ return x.id === id; });
+  if (!c) return;
+  document.getElementById('pc-contact-id').value = id;
+  document.getElementById('pc-contact-name').textContent = c.name + (c.business ? ' — ' + c.business : '');
+  document.getElementById('pc-website').value = c.website || '';
+  document.getElementById('pc-dump').value = c.precall_input || '';
+  // Show a "view last brief" shortcut if one exists
+  const viewBtn = document.getElementById('pc-view-last');
+  if (viewBtn) viewBtn.style.display = c.precall ? 'block' : 'none';
+  openModal('precall-modal');
+}
+
+// Called from the paste modal — reads the boxes, then builds.
+async function generatePreCall() {
+  const id = parseInt(document.getElementById('pc-contact-id').value);
+  const dump = document.getElementById('pc-dump').value.trim();
+  const website = document.getElementById('pc-website').value.trim();
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(function(x){ return x.id === id; });
+  if (!c) return;
+  closeModal('precall-modal');
+  await runPreCall(c, contacts, dump, website);
+}
+
+// One-click from the Call List: show the saved brief instantly, or build it on the
+// spot from the info captured when the lead was added — no paste step.
+async function openPreCallInstant(id) {
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(function(x){ return x.id === id; });
+  if (!c) return;
+  if (c.precall) {
+    document.getElementById('pc-contact-id').value = id;
+    document.getElementById('pc-output-name').textContent = c.name + (c.business ? ' · ' + c.business : '');
+    document.getElementById('precall-output').innerHTML = renderPreCallBrief(c.precall);
+    openModal('precall-output-modal');
+    return;
+  }
+  await runPreCall(c, contacts, c.precall_input || '', c.website || '');
+}
+
+// Core brief builder — shared by the paste modal and the one-click Call List flow.
+async function runPreCall(c, contacts, dump, website) {
+  const id = c.id;
+  document.getElementById('pc-contact-id').value = id;
+
+  // Persist the dump + website so it's there next time
+  if (dump) c.precall_input = dump;
+  if (website) c.website = website;
+  lsSet('contacts', contacts);
+
+  // Past conversations — so the brief can re-open the relationship toward a meeting
+  const logHistory = (c.log || []).slice(0, 8).map(function(l){ return l.date + ' (' + l.type + '): ' + l.notes; }).join(' | ');
+
+  // Anything the CRM already audited
+  const enr = c.enrichment || {};
+  const enrichmentContext = enr.audited_at ? (
+    'PRIOR AUTOMATED AUDIT: '
+    + (enr.website_audit ? 'WEBSITE: ' + enr.website_audit + ' ' : '')
+    + (enr.ads_audit ? 'META ADS: ' + enr.ads_audit + ' ' : '')
+    + (enr.local_presence ? 'LOCAL PRESENCE: ' + enr.local_presence + ' ' : '')
+  ) : '';
+
+  const known = 'PROSPECT: ' + c.name + (c.business ? ', ' + c.business : '') + '. '
+    + (c.industry ? 'Industry/type of business (as entered): ' + c.industry + '. ' : '')
+    + (website ? 'Website: ' + website + '. ' : '')
+    + (c.instagram ? 'Instagram: ' + c.instagram + '. ' : '')
+    + (c.facebook ? 'Facebook: ' + c.facebook + '. ' : '')
+    + (c.source ? 'How we found them: ' + c.source + '. ' : '')
+    + (c.notes ? 'Notes: ' + c.notes + '. ' : '')
+    + 'Current pipeline stage: ' + (STAGE_LABELS[c.stage] || c.stage) + '.';
+
+  const dumped = dump ? ('RESEARCH DUMP (everything the caller gathered — website copy, Google Business Profile, reviews, social, ad-library findings, raw notes; may be messy):\n' + dump) : 'No research dump was pasted — work from the known prospect info, conversation history, and any prior audit only, and say plainly that a richer brief needs a research paste.';
+
+  const history = logHistory ? ('PAST CONVERSATIONS WITH THIS PROSPECT (most recent first): ' + logHistory) : 'No prior conversations logged — this is likely a first conversation.';
+
+  const rules = 'RULES: '
+    + 'Do NOT assume a fixed industry. First infer the business model from the evidence (freelancer, service-based, local home services, product/e-commerce, B2B, etc.) and tailor everything to THAT model — do not default to home services. '
+    + 'Tie every competitor gap and every opportunity to a SPECIFIC Motion by Movements service named above. '
+    + 'Be concrete and specific to THIS business — no generic filler. If evidence is thin, make your best expert inference and keep it tight rather than padding. '
+    + (website ? 'IF you are able to access the website at ' + website + ', read it and use what you find — especially to identify the owner/decision-maker name and a phone or email, and to sharpen the audit. ' : '')
+    + 'GOOGLE BUSINESS PROFILE AUDIT: if a Google Business Profile or local listing appears in the research, list the specific things that need fixing or improving (e.g. missing/weak description, too few photos, wrong or missing categories, missing hours, low review count or no recent reviews, no recent posts, no booking/website link, incomplete services/attributes). If no GBP info is present, say so in one short line. '
+    + 'OWNER/CONTACT: pull the owner or decision-maker name and the best phone/email you can find from the research or website. If you cannot find a name, say "Name not found — ask for the owner." '
+    + 'META ADS: based only on signals actually present, give a quick read on whether they appear to be running Meta (Facebook/Instagram) ads, and clearly mark it as a guess to verify — do NOT state it as fact. '
+    + 'The brief has exactly two jobs: make the caller sound like an expert who already understands this business (build trust), and move the prospect toward booking a meeting. Everything must serve one of those two.';
+
+  const format = 'OUTPUT FORMAT — return ONLY valid JSON, no markdown fences, with these exact keys: '
+    + '{'
+    + '"hook":"ONE punchy sentence the caller can open with that instantly proves they did their homework on this specific business",'
+    + '"business_type":"a few words naming the business model you inferred",'
+    + '"industry":"2-3 short sentences on the dynamics/economy this type of business is operating in right now",'
+    + '"funnel_leak":"2-3 short sentences on where this business is most likely losing customers or revenue",'
+    + '"competitor_gap":"2-3 short sentences on what competitors in their space do that this business is not — each point tied to an MBM service",'
+    + '"opportunities":["2 or 3 strings, each the highest-leverage move, naming the specific MBM service and the outcome it drives"],'
+    + '"gbp_fixes":["short bullet strings — specific fixes for their Google Business Profile; empty array if no GBP info was provided"],'
+    + '"owner_contact":"owner/decision-maker name and best phone/email found, or a short note that the name was not found",'
+    + '"meta_ads":"one short line: your best guess on whether they are running Meta ads, clearly marked as a guess to verify",'
+    + '"the_ask":"2-3 sentences: exactly how to steer this call toward a booked meeting. If past conversations exist, include a natural follow-up line that references them to re-open the relationship.",'
+    + '"trust_builder":"one specific, non-obvious insight about their business or market the caller can drop to deepen credibility"'
+    + '} '
+    + 'Keep every field tight and instantly skimmable for someone about to dial the phone.';
+
+  const prompt = 'You are a senior digital marketing strategist preparing a pre-call brief for a caller at Motion by Movements who is about to phone this prospect. '
+    + MBM_SERVICES + ' '
+    + known + ' '
+    + dumped + ' '
+    + history + ' '
+    + (enrichmentContext ? enrichmentContext + ' ' : '')
+    + rules + ' '
+    + format;
+
+  // Open the output modal in a loading state
+  document.getElementById('pc-output-name').textContent = c.name + (c.business ? ' · ' + c.business : '');
+  document.getElementById('precall-output').innerHTML = '<div style="text-align:center;padding:30px 0"><div style="font-size:28px;margin-bottom:12px">🧠</div><div style="font-size:13px;color:var(--text2)">Building your brief for ' + c.name + '...</div></div>';
+  closeModal('precall-modal');
+  openModal('precall-output-modal');
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: prompt, type: 'coach', url: website || undefined })
+    });
+    const data = await res.json();
+    const raw = (data.result || '').replace(/```json|```/g, '').trim();
+
+    const brief = parseLooseJSON(data.result);
+
+    if (brief) {
+      // Build the one-tap "check their Meta ads" link (deterministic, not from the AI)
+      const bizForAds = c.business || c.name || '';
+      brief.meta_ads_url = 'https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=US&q=' + encodeURIComponent(bizForAds) + '&search_type=keyword_unordered';
+      c.precall = brief;
+      c.precall_hook = brief.hook || '';
+      c.precall_raw = raw;
+      c.precall_date = new Date().toISOString().split('T')[0];
+      lsSet('contacts', contacts);
+      await saveContact_DB(c);
+      allContacts = contacts;
+      renderContacts(allContacts);
+      renderPipeline(allContacts);
+      document.getElementById('precall-output').innerHTML = renderPreCallBrief(brief);
+    } else {
+      // The model didn't return clean JSON — show the raw text rather than failing
+      document.getElementById('precall-output').innerHTML = '<div style="font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap">' + raw.replace(/</g, '&lt;') + '</div>';
+    }
+  } catch(e) {
+    document.getElementById('precall-output').innerHTML = '<div class="empty">Could not build the brief. Check your connection and try again.</div>';
+  }
+}
+
+function renderPreCallBrief(b) {
+  function block(label, body, color) {
+    if (!body) return '';
+    return '<div style="margin-bottom:14px"><div class="lbl" style="color:' + (color || 'var(--text3)') + ';margin-bottom:5px">' + label + '</div><div style="font-size:13px;line-height:1.65;color:var(--text)">' + body + '</div></div>';
+  }
+  let html = '';
+  // Hook — the headline, styled big and burnt-orange
+  if (b.hook) {
+    html += '<div style="background:linear-gradient(135deg,rgba(200,75,17,0.1),rgba(200,75,17,0.03));border-left:3px solid var(--burn);border-radius:var(--r-sm);padding:14px;margin-bottom:16px">'
+      + '<div class="lbl lbl-burn" style="margin-bottom:6px">🎯 Lead with this</div>'
+      + '<div style="font-size:15px;font-weight:600;line-height:1.5;color:var(--text)">' + b.hook + '</div>'
+      + (b.business_type ? '<div style="font-size:11px;color:var(--text3);margin-top:8px">Read as: ' + b.business_type + '</div>' : '')
+      + '</div>';
+  }
+  html += block('1 · Their industry right now', b.industry);
+  html += block('2 · Where they\'re leaking customers', b.funnel_leak);
+  html += block('3 · What competitors do that they don\'t', b.competitor_gap);
+  // Opportunities — as a list
+  if (Array.isArray(b.opportunities) && b.opportunities.length) {
+    html += '<div style="margin-bottom:14px"><div class="lbl" style="margin-bottom:6px">4 · Top opportunities</div>'
+      + b.opportunities.map(function(o, i){ return '<div class="priority"><div class="priority-rank">' + (i+1) + '</div><div style="font-size:13px;line-height:1.5;color:var(--text)">' + o + '</div></div>'; }).join('')
+      + '</div>';
+  }
+  // Google Business Profile fixes — checklist
+  if (Array.isArray(b.gbp_fixes) && b.gbp_fixes.length) {
+    html += '<div style="margin-bottom:14px"><div class="lbl" style="margin-bottom:6px">📍 Google Profile fixes</div>'
+      + '<div style="background:#F8F4F0;border-radius:var(--r-sm);padding:10px 12px">'
+      + b.gbp_fixes.map(function(f){ return '<div style="display:flex;gap:8px;font-size:13px;line-height:1.5;color:var(--text);padding:4px 0"><span style="color:var(--burn)">✓</span><span>' + f + '</span></div>'; }).join('')
+      + '</div></div>';
+  }
+  // Owner / contact found
+  if (b.owner_contact) {
+    html += '<div style="margin-bottom:14px"><div class="lbl" style="margin-bottom:5px">👤 Owner / contact</div>'
+      + '<div style="font-size:13px;line-height:1.6;color:var(--text);background:#F8F4F0;border-radius:var(--r-sm);padding:10px 12px">' + b.owner_contact + '</div></div>';
+  }
+  // Meta ads — the AI's hunch plus a one-tap link to check it for real
+  if (b.meta_ads || b.meta_ads_url) {
+    html += '<div style="margin-bottom:14px"><div class="lbl" style="margin-bottom:5px">📣 Meta ads</div>'
+      + (b.meta_ads ? '<div style="font-size:13px;line-height:1.6;color:var(--text);margin-bottom:8px">' + b.meta_ads + '</div>' : '')
+      + (b.meta_ads_url ? '<a href="' + b.meta_ads_url + '" target="_blank" style="display:inline-block;padding:8px 16px;border-radius:var(--pill);background:var(--burn);color:#fff;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none">Check their Meta ads →</a><div style="font-size:11px;color:var(--text3);margin-top:6px">Opens Facebook\'s Ad Library — the real answer in 2 seconds.</div>' : '')
+      + '</div>';
+  }
+  // The ask — styled like the hook, the closing move
+  if (b.the_ask) {
+    html += '<div style="background:var(--black);border-radius:var(--r-sm);padding:14px;margin-bottom:12px">'
+      + '<div class="lbl" style="color:var(--burn);margin-bottom:6px">💬 The ask — get the meeting</div>'
+      + '<div style="font-size:13px;line-height:1.6;color:#fff">' + b.the_ask + '</div>'
+      + '</div>';
+  }
+  if (b.trust_builder) {
+    html += block('🔑 Expert credibility drop', b.trust_builder, 'var(--burn)');
+  }
+  return html || '<div class="empty">Brief came back empty — try regenerating.</div>';
+}
+
+function openPreCallOutput(id) {
+  const contacts = lsGet('contacts') || [];
+  const c = contacts.find(function(x){ return x.id === id; });
+  if (!c || !c.precall) { openPreCall(id); return; }
+  document.getElementById('pc-output-name').textContent = c.name + (c.business ? ' · ' + c.business : '');
+  document.getElementById('precall-output').innerHTML = renderPreCallBrief(c.precall);
+  openModal('precall-output-modal');
+}
+
+function regeneratePreCall() {
+  const id = parseInt(document.getElementById('pc-contact-id').value) || (document.getElementById('pc-output-name') && null);
+  closeModal('precall-output-modal');
+  const cid = parseInt(document.getElementById('pc-contact-id').value);
+  if (cid) openPreCall(cid);
+}
+
+// ══════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════
+async function loadAdmin() {
+  const userInfo = document.getElementById('admin-user-info');
+  if (userInfo && currentUser) {
+    userInfo.textContent = (currentUser.name || currentUser.email) + ' · ' + (currentUser.role || 'user');
+  }
+
+  try {
+    const res = await sbFetch('/rest/v1/mbm_workspaces?select=*&order=created_at.desc');
+    const workspaces = await res.json();
+    renderWorkspaces(Array.isArray(workspaces) ? workspaces : []);
+  } catch {
+    // Demo mode
+    const demo = JSON.parse(localStorage.getItem('mbm_workspaces') || '[]');
+    if (currentWorkspace && !demo.find(w => w.id === currentWorkspace.id)) {
+      demo.push(currentWorkspace);
+    }
+    renderWorkspaces(demo);
+  }
+}
+
+function renderWorkspaces(workspaces) {
+  const el = document.getElementById('workspace-list');
+  const countEl = document.getElementById('ws-count');
+  if (!el) return;
+  if (countEl) countEl.textContent = workspaces.length + ' client workspace' + (workspaces.length !== 1 ? 's' : '');
+  if (!workspaces.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🏢</div>No client workspaces yet</div>';
+    return;
+  }
+  el.innerHTML = workspaces.map(ws => {
+    const initials = ws.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+    const isActive = currentWorkspace && currentWorkspace.id === ws.id;
+    return '<div class="workspace-card ' + (isActive ? 'active-ws' : '') + '" onclick="switchWorkspace(' + JSON.stringify(ws).replace(/"/g,"'") + ')">'
+      + '<div style="display:flex;align-items:center;gap:12px">'
+      + '<div class="ws-logo">' + initials + '</div>'
+      + '<div><div style="font-size:14px;font-weight:700">' + ws.name + '</div>'
+      + (ws.industry ? '<div style="font-size:11px;color:var(--text3)">' + ws.industry + '</div>' : '')
+      + '</div></div>'
+      + '<div style="font-size:11px;color:' + (isActive ? 'var(--burn)' : 'var(--text3)') + ';font-weight:700">' + (isActive ? 'ACTIVE ✓' : 'Switch →') + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function switchWorkspace(ws) {
+  currentWorkspace = typeof ws === 'string' ? JSON.parse(ws.replace(/'/g,'"')) : ws;
+  allContacts = [];
+  updateWorkspaceIndicator();
+  loadPipeline();
+  goPage('pipeline', document.querySelector('.np'));
+  toast('Switched to ' + currentWorkspace.name);
+}
+
+async function saveWorkspace() {
+  const name = document.getElementById('ws-name').value.trim();
+  if (!name) { toast('Add a business name'); return; }
+
+  const ws = {
+    id: Date.now().toString(),
+    name,
+    industry: document.getElementById('ws-industry').value.trim(),
+    website: document.getElementById('ws-website').value.trim(),
+    owner: document.getElementById('ws-owner').value.trim(),
+    email: document.getElementById('ws-email').value.trim(),
+    created_at: new Date().toISOString()
+  };
+
+  // Save to Supabase
+  try {
+    await sbFetch('/rest/v1/mbm_workspaces', { method: 'POST', body: JSON.stringify(ws) });
+  } catch {}
+
+  // Always save to localStorage
+  const workspaces = JSON.parse(localStorage.getItem('mbm_workspaces') || '[]');
+  workspaces.unshift(ws);
+  localStorage.setItem('mbm_workspaces', JSON.stringify(workspaces));
+
+  closeModal('add-workspace-modal');
+  ['ws-name','ws-industry','ws-website','ws-owner','ws-email'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  toast(name + ' workspace created');
+  loadAdmin();
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+function init() {
+  // No sign-in wall — boot straight into the CRM.
+  // Everyone shares one fixed workspace so data lands in a single consistent bucket.
+  currentUser = { name: 'Andrew', email: 'andrew@motionbymovements.com', role: 'admin' };
+  currentWorkspace = { id: 'mbm-main', name: 'Motion by Movements' };
+  currentSession = SK;
+  const ls = document.getElementById('login-screen');
+  if (ls) ls.style.display = 'none';
+  showMain();
+}
+
+// Save session on login
+const origShowMain = showMain;
+window.showMain = function() {
+  if (currentUser) {
+    localStorage.setItem('mbm_session', JSON.stringify({
+      user: currentUser,
+      workspace: currentWorkspace,
+      session: currentSession
+    }));
+  }
+  origShowMain();
+};
+
+init();
+
+</script>
+
+<!-- ── PRE-CALL BRIEF — INPUT MODAL ── -->
+<div class="modal-bg" id="precall-modal">
+  <div class="modal" style="max-height:88vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.08em;margin-bottom:4px">Pre-Call Brief</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px" id="pc-contact-name"></div>
+    <input type="hidden" id="pc-contact-id">
+
+    <button class="btn-burn btn-sm" id="pc-view-last" style="width:100%;margin-bottom:14px;display:none" onclick="openPreCallOutput(parseInt(document.getElementById('pc-contact-id').value))">📄 View last brief</button>
+
+    <div class="lbl">Paste everything you found</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.6">Dump it all in — their Google Business Profile, website text, reviews, social links, ad-library findings, your notes. Messy is fine. The more you paste, the sharper the brief.</div>
+    <textarea id="pc-dump" placeholder="Paste their Google Business Profile, website copy, reviews, links, anything you dug up..." style="min-height:160px;margin-bottom:12px"></textarea>
+
+    <div class="lbl">Their website (optional)</div>
+    <input type="url" id="pc-website" placeholder="https://theirbusiness.com" style="margin-bottom:8px">
+
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px;line-height:1.6">✓ Your past conversations with this contact are included automatically.</div>
+
+    <button class="btn-burn" style="width:100%;margin-bottom:10px" onclick="generatePreCall()">🧠 Build my brief</button>
+    <button class="btn-ghost" style="width:100%" onclick="closeModal('precall-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── PRE-CALL BRIEF — OUTPUT MODAL ── -->
+<div class="modal-bg" id="precall-output-modal">
+  <div class="modal" style="max-height:92vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.08em;color:var(--burn);margin-bottom:4px">Pre-Call Brief</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px" id="pc-output-name"></div>
+    <div id="precall-output"><div class="empty">Building brief...</div></div>
+    <button class="btn-black" style="width:100%;margin-top:16px;margin-bottom:8px" onclick="regeneratePreCall()">↻ Edit research / regenerate</button>
+    <button class="btn-ghost" style="width:100%" onclick="closeModal('precall-output-modal')">Close</button>
+  </div>
+</div>
+
+<!-- ── CONTACT PROFILE MODAL ── -->
+<div class="modal-bg" id="profile-modal">
+  <div class="modal" style="max-height:92vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div id="profile-body"></div>
+    <button class="btn-ghost" style="width:100%;margin-top:16px" onclick="closeModal('profile-modal')">Close</button>
+  </div>
+</div>
+
+</body>
+</html>
