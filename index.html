@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08080b">
+<title>MBM CRM — Motion by Movements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060608;
+  --panel:linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.018));
+  --panel-solid:rgba(255,255,255,0.03);
+  --line:rgba(255,255,255,0.08);
+  --line2:rgba(255,255,255,0.14);
+  --text:#f6f6f8;
+  --text2:rgba(255,255,255,0.56);
+  --text3:rgba(255,255,255,0.32);
+  --acc:#ff7a38; --acc2:#ff5c1a; --accglow:rgba(255,122,56,0.55);
+  --teal:#40d9c8; --indigo:#7d97ff; --amber:#f2b23e; --rose:#ff6472; --slate:#6b6b7a;
+  --burn:var(--acc); --burn2:var(--acc2); --burnglow:rgba(255,122,56,0.16);
+  --green:var(--teal); --blue:var(--indigo); --red:var(--rose); --purple:#9d8bff;
+  --r:22px; --r-sm:15px; --pill:999px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{
+  background:
+    radial-gradient(1100px 560px at 50% -240px, rgba(255,122,56,0.11), transparent 62%),
+    radial-gradient(820px 460px at 108% -60px, rgba(125,151,255,0.07), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Inter',system-ui,sans-serif;
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-0.011em;
+  max-width:940px;margin:0 auto;padding:0 0 100px;min-height:100vh;
+}
+.bebas,.display{font-weight:300;letter-spacing:-0.03em}
+a{color:inherit}
+input,select,textarea,button{font-family:inherit;font-size:15px;color:var(--text)}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px}::-webkit-scrollbar-track{background:transparent}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:40;background:rgba(6,6,8,0.6);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border-bottom:1px solid var(--line);padding:15px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(140deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;box-shadow:0 0 22px var(--accglow),inset 0 1px 0 rgba(255,255,255,0.35)}
+.brand-txt{font-weight:600;font-size:16px;letter-spacing:-0.02em;line-height:1}
+.brand-sub{font-size:8.5px;color:var(--text3);letter-spacing:0.26em;text-transform:uppercase;margin-top:3px;font-weight:500}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.ws-ind{font-size:9.5px;color:var(--text2);letter-spacing:0.14em;text-transform:uppercase;font-weight:500}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);transition:.3s}
+.sync-dot.syncing{background:var(--amber);box-shadow:0 0 12px var(--amber);animation:pulse 1s infinite}
+.sync-dot.ok{background:var(--teal);box-shadow:0 0 12px var(--teal)} .sync-dot.err{background:var(--rose);box-shadow:0 0 12px var(--rose)}
+@keyframes pulse{50%{opacity:.35}}
+
+/* nav */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(10,10,13,0.72);backdrop-filter:blur(28px) saturate(1.5);-webkit-backdrop-filter:blur(28px) saturate(1.5);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:9px 8px calc(10px + env(safe-area-inset-bottom));max-width:940px;margin:0 auto}
+.nv{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;color:var(--text3);cursor:pointer;border-radius:12px;transition:.2s}
+.nv .ic{font-size:17px;line-height:1;transition:.2s}.nv .lb{font-size:9.5px;font-weight:600;letter-spacing:.01em}
+.nv.active{color:var(--acc)}.nv.active .ic{filter:drop-shadow(0 0 10px var(--accglow));transform:translateY(-1px)}
+
+/* pages */
+.page{display:none;padding:22px 20px}.page.active{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}}
+.page-title{font-weight:300;font-size:32px;letter-spacing:-0.03em;margin-bottom:3px}
+.page-sub{font-size:12.5px;color:var(--text3);margin-bottom:20px;font-weight:400}
+
+/* panel / card */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;backdrop-filter:blur(8px)}
+.card+.card{margin-top:12px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:17px 18px;position:relative;overflow:hidden}
+.stat .k{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;font-weight:600;margin-bottom:9px}
+.stat .v{font-weight:300;font-size:33px;line-height:1;letter-spacing:-0.03em}
+.stat .glow{position:absolute;right:-30px;top:-30px;width:92px;height:92px;border-radius:50%;opacity:.18;filter:blur(26px)}
+
+.sec{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.16em;font-weight:600;margin:24px 2px 12px;display:flex;align-items:center;justify-content:space-between}
+
+/* lead */
+.lead{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:11px;cursor:pointer;transition:.2s ease}
+.lead:hover{border-color:var(--line2);transform:translateY(-1px)}.lead:active{transform:scale(0.995)}
+.lead-top{display:flex;gap:13px;align-items:flex-start}
+.lead-main{flex:1;min-width:0}
+.lead-name{font-weight:600;font-size:15.5px;letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lead-biz{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.lead-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.pill{font-size:9.5px;font-weight:600;padding:3px 10px;border-radius:var(--pill);letter-spacing:0.01em;white-space:nowrap;border:1px solid transparent}
+.ring-wrap{flex-shrink:0;text-align:center}
+.ring-cap{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:3px;font-weight:600}
+.money{font-weight:500;font-size:14px;color:var(--teal);letter-spacing:-0.01em}
+.lead-actions{display:flex;gap:7px;margin-top:12px}
+.la{flex:1;text-align:center;padding:9px;border:1px solid var(--line);border-radius:var(--pill);font-size:10.5px;font-weight:600;text-decoration:none;text-transform:uppercase;letter-spacing:.06em;transition:.2s;background:rgba(255,255,255,0.02)}
+.la:hover{background:rgba(255,255,255,0.06);border-color:var(--line2)}
+.la.call{color:var(--teal)}.la.text{color:var(--text2)}.la.email{color:var(--indigo)}
+.attn{position:relative}.attn::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:2px;border-radius:2px;background:var(--acc);box-shadow:0 0 10px var(--accglow)}
+
+/* POWER BARS — thin, glowing */
+.meter{height:4px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:4px;transition:.5s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 9px rgba(255,255,255,0.14),0 0 5px var(--accglow)}
+
+/* buttons */
+.btn{border:none;border-radius:var(--pill);padding:13px 20px;font-weight:600;font-size:14px;cursor:pointer;transition:.2s;letter-spacing:-0.01em;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:active{transform:scale(0.97)}
+.btn-burn{background:linear-gradient(140deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 6px 22px var(--burnglow),inset 0 1px 0 rgba(255,255,255,0.25)}
+.btn-burn:hover{box-shadow:0 8px 30px var(--accglow),inset 0 1px 0 rgba(255,255,255,0.25)}
+.btn-ghost{background:rgba(255,255,255,0.045);color:var(--text);border:1px solid var(--line)}
+.btn-ghost:hover{background:rgba(255,255,255,0.08)}
+.btn-dark{background:rgba(255,255,255,0.02);color:var(--text);border:1px solid var(--line2)}
+.btn-danger{background:rgba(255,100,114,0.1);color:var(--rose);border:1px solid rgba(255,100,114,0.22)}
+.btn-sm{padding:9px 13px;font-size:12px}.btn-block{width:100%}
+.fab{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));right:20px;z-index:39;width:54px;height:54px;border-radius:50%;background:linear-gradient(140deg,var(--acc),var(--acc2));color:#fff;font-size:26px;font-weight:300;border:none;box-shadow:0 8px 30px var(--accglow),inset 0 1px 0 rgba(255,255,255,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.fab:hover{transform:scale(1.05)}
+
+/* fields */
+.field{margin-bottom:14px}
+.lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;font-weight:600;margin-bottom:7px;display:block}
+.lbl .opt{color:var(--text3);text-transform:none;letter-spacing:0;font-weight:400}
+input[type=text],input[type=tel],input[type=email],input[type=url],input[type=number],input[type=date],select,textarea{
+  width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;color:var(--text);transition:.2s}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);background:rgba(255,255,255,0.05);box-shadow:0 0 0 3px var(--burnglow)}
+textarea{min-height:72px;resize:vertical}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8e9c' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+.row{display:flex;gap:11px}.row>*{flex:1}
+input[type=checkbox]{width:19px;height:19px;min-width:19px;accent-color:var(--acc);cursor:pointer;-webkit-appearance:auto;appearance:auto}
+input[type=range]{-webkit-appearance:none;appearance:none;height:5px;background:rgba(255,255,255,0.1);border-radius:4px;padding:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--acc);cursor:pointer;box-shadow:0 0 14px var(--accglow),inset 0 1px 0 rgba(255,255,255,0.4)}
+.slider-val{font-weight:300;font-size:22px;color:var(--acc);min-width:26px;text-align:center;letter-spacing:-0.02em}
+
+.chks{display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:520px){.chks{grid-template-columns:1fr 1fr}}
+.chk{display:flex;align-items:center;gap:9px;font-size:12.5px;cursor:pointer;background:rgba(255,255,255,0.025);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;transition:.18s}
+.chk:hover{border-color:var(--line2)}.chk.on{border-color:var(--acc);background:var(--burnglow);box-shadow:0 0 0 1px var(--burnglow)}.chk.on span{color:var(--acc)}
+
+details.grp{border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:11px;background:rgba(255,255,255,0.02);overflow:hidden}
+details.grp>summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;font-weight:600;font-size:13px}
+details.grp>summary::-webkit-details-marker{display:none}
+details.grp>summary .tag{font-size:9px;color:var(--text3);font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+details.grp>summary::after{content:'⌄';color:var(--text3);transition:.25s;font-size:14px;margin-left:8px}
+details.grp[open]>summary::after{transform:rotate(180deg)}
+details.grp .grp-body{padding:4px 16px 16px}
+.grp-lead{border-color:var(--line2);background:rgba(255,122,56,0.035)}
+
+.modal-bg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center}
+/* sub-sheets layer ON TOP of the open lead profile, so closing them returns to it */
+#lead-modal,#log-modal,#email-modal{z-index:72;background:rgba(0,0,0,0.4)}
+.modal-bg.show{display:flex;animation:fade .22s}
+.modal{background:linear-gradient(180deg,rgba(24,24,28,0.98),rgba(14,14,17,0.98));border:1px solid var(--line2);border-top-left-radius:26px;border-top-right-radius:26px;width:100%;max-width:940px;max-height:94vh;overflow-y:auto;padding:22px 20px calc(26px + env(safe-area-inset-bottom));animation:slideup .32s cubic-bezier(.16,1,.3,1)}
+@media(min-width:640px){.modal-bg{align-items:center}.modal{border-radius:26px;max-height:90vh}}
+@keyframes slideup{from{transform:translateY(44px)}}
+.handle{width:36px;height:4px;background:var(--line2);border-radius:4px;margin:0 auto 18px}
+.modal-title{font-weight:300;font-size:26px;letter-spacing:-0.03em}
+
+.tl-item{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.tl-dot{width:7px;height:7px;border-radius:50%;margin-top:6px;flex-shrink:0;box-shadow:0 0 8px currentColor}
+.tl-body{flex:1;min-width:0}
+.tl-meta{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.tl-txt{font-size:13px;color:var(--text);line-height:1.55;margin-top:3px;white-space:pre-wrap;word-break:break-word}
+
+.empty{text-align:center;padding:48px 20px;color:var(--text3)}.empty .ic{font-size:34px;margin-bottom:14px;opacity:.4}
+#toast{position:fixed;bottom:calc(102px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:rgba(28,28,32,0.92);backdrop-filter:blur(20px);border:1px solid var(--line2);color:var(--text);padding:13px 22px;border-radius:var(--pill);font-size:13px;font-weight:500;z-index:100;opacity:0;transition:.28s cubic-bezier(.2,.8,.2,1);pointer-events:none;box-shadow:0 10px 40px rgba(0,0,0,.6);max-width:92vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.chipbar{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}
+.chip{white-space:nowrap;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:var(--pill);padding:8px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:.18s}
+.chip:hover{border-color:var(--line2)}
+.chip.active{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 4px 16px var(--burnglow)}
+.searchbar{width:100%;margin-bottom:13px}
+.viewtog{display:flex;background:rgba(255,255,255,0.035);border:1px solid var(--line);border-radius:var(--pill);padding:3px;gap:2px}
+.viewtog button{flex:1;border:none;background:none;color:var(--text2);font-weight:600;font-size:12px;padding:8px;border-radius:var(--pill);cursor:pointer;transition:.2s}
+.viewtog button.on{background:var(--acc);color:#fff;box-shadow:0 3px 14px var(--burnglow)}
+
+.board{display:flex;gap:13px;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch}
+.col{flex:0 0 262px;background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-height:120px;transition:.2s}
+.col.drop{border-color:var(--acc);background:var(--burnglow);box-shadow:0 0 0 1px var(--burnglow)}
+.col-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;font-weight:600;font-size:13px}
+.col-h .cnt{font-size:11px;color:var(--text3);background:rgba(255,255,255,0.05);padding:2px 9px;border-radius:var(--pill)}
+.kc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:9px;cursor:grab;transition:.15s}
+.kc:hover{border-color:var(--line2)}.kc:active{cursor:grabbing}.kc.drag{opacity:.35}
+.kc-name{font-weight:600;font-size:13px;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kc-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+iframe.audit{width:100%;height:calc(100vh - 200px);min-height:540px;border:0;border-radius:var(--r);background:#fff;display:block}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:6px 0}.kv+.kv{border-top:1px solid var(--line)}.kv span:first-child{color:var(--text3)}.kv span:last-child{text-align:right;word-break:break-word;font-weight:500}
+.action-item{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,0.025);border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 15px;margin-bottom:9px}
+.action-item .n{width:23px;height:23px;border-radius:50%;background:linear-gradient(140deg,var(--acc),var(--acc2));color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 14px var(--burnglow)}
+
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="brand"><div class="logo">M</div><div><div class="brand-txt">MBM CRM</div><div class="brand-sub">Command Center</div></div></div>
+  <div class="hdr-right"><div class="ws-ind" id="ws-ind">MOTION BY MOVEMENTS</div><div class="sync-dot" id="sync"></div></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div class="page-title">Dashboard</div>
+  <div class="page-sub" id="dash-greeting">Your pipeline at a glance</div>
+  <div class="stats" id="dash-stats"></div>
+  <div id="dash-charts"></div>
+  <div id="dash-industry"></div>
+</div>
+
+<!-- LEADS -->
+<div id="page-leads" class="page">
+  <div class="page-title">Leads</div>
+  <div class="page-sub" id="leads-sub"></div>
+  <div class="viewtog" style="margin-bottom:12px"><button id="vt-list" class="on" onclick="setView('list')">☰ List</button><button id="vt-board" onclick="setView('board')">▦ Board</button></div>
+  <input type="text" class="searchbar" id="lead-search" placeholder="🔍 Search name, business, phone…" oninput="renderLeads()">
+  <div class="chipbar" id="stage-chips"></div>
+  <div class="row" style="margin-bottom:12px">
+    <select id="industry-filter" onchange="renderLeads()"></select>
+    <select id="sort-by" onchange="renderLeads()">
+      <option value="priority">Sort: Priority 🔥</option>
+      <option value="revenue">Sort: Revenue at risk</option>
+      <option value="recent">Sort: Recent</option>
+      <option value="name">Sort: Name</option>
+    </select>
+  </div>
+  <div id="leads-list"></div>
+  <div id="leads-board" style="display:none"></div>
+</div>
+
+<!-- AUDIT -->
+<div id="page-audit" class="page">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+    <div><div class="page-title">Assessment</div><div class="page-sub" id="audit-for">Full digital presence audit</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="openBlankAudit()">+ Blank</button>
+  </div>
+  <iframe id="audit-frame" class="audit" src="mbm-audit.html" title="MBM Digital Presence Audit"></iframe>
+</div>
+
+<!-- SETTINGS -->
+<div id="page-settings" class="page">
+  <div class="page-title">Settings</div>
+  <div class="page-sub">You & your workspace</div>
+  <div class="card"><div class="lbl">Your name (activity tracking)</div><input type="text" id="me-name" onchange="setMe(this.value)"><div style="font-size:11px;color:var(--text3);margin-top:8px">Tags who logged each call so your team sees who did what.</div></div>
+  <div class="card"><div class="lbl">Calling &amp; texting — Google Voice</div>
+    <div class="field" style="margin-top:8px"><label class="lbl">How Call &amp; Text work</label>
+      <select id="set-method" onchange="setCallMethod(this.value)">
+        <option value="web">Open Google Voice with the number ready (recommended)</option>
+        <option value="device">This device's phone</option>
+      </select></div>
+    <div class="row">
+      <div class="field"><label class="lbl">Google Voice number</label><input type="tel" id="set-gv" placeholder="(314) 695-8076" onchange="setGV(this.value)"></div>
+      <div class="field" style="flex:0 0 96px"><label class="lbl">Account #</label><input type="tel" id="set-gvacct" placeholder="1" onchange="setGVAcct(this.value)"></div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.7">Pressing <b>📞 Call</b> opens <b>voice.google.com/u/<span id="gvacct-hint">1</span>/calls</b> with the number filled in, ready to dial. Just be signed in to <b>andrewodonnell718@gmail.com</b> in this browser.<br><span style="color:var(--text3)">"Account #" is which Google you're signed in as — it's the number in the voice.google.com URL (<b>/u/1/</b> = 1). If Call opens the wrong Google, change this to 0, 2, etc.</span></div>
+    <button class="btn btn-ghost btn-sm btn-block" style="margin-top:14px" onclick="exportGoogleContacts()">⬇ Export leads to Google Contacts</button>
+    <div style="font-size:11px;color:var(--text3);line-height:1.6;margin-top:6px">Import at <b>contacts.google.com</b> so Google Voice shows each lead's name on calls &amp; texts. Re-export when you add leads.</div></div>
+  <div class="card"><div class="lbl">For your analysis emails</div>
+    <div class="field" style="margin-top:8px"><label class="lbl">Booking / scheduling link</label><input type="text" id="set-booking" placeholder="https://calendly.com/..." onchange="setBooking(this.value)"></div>
+    <div class="field"><label class="lbl">Your phone (for the sign-off)</label><input type="tel" id="set-phone" placeholder="314-555-0100" onchange="setPhone(this.value)"></div>
+    <div style="font-size:11px;color:var(--text3)">These fill the call-to-action and signature in every analysis email you generate.</div></div>
+  <div class="card"><div class="lbl">Workspace</div><div class="kv"><span>Name</span><span id="set-ws"></span></div><div class="kv"><span>Leads stored</span><span id="set-count"></span></div></div>
+  <div class="card"><div class="lbl">Data & sync</div><div style="font-size:12.5px;color:var(--text2);margin:6px 0 12px;line-height:1.6">Seeing old or wrong leads on this device? Reset it and pull everything fresh from the cloud. Your cloud data is safe.</div>
+    <button class="btn btn-dark btn-sm btn-block" onclick="resyncFromCloud()">🔄 Reset this device from cloud</button>
+    <button class="btn btn-ghost btn-sm btn-block" style="margin-top:8px" onclick="showImport()">📥 Import leads (CSV)</button></div>
+  <div id="import-box" class="card" style="display:none"><div class="lbl">Import a CSV</div><div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5">First row = column titles. Duplicates skipped automatically.</div><input type="file" id="csv-file" accept=".csv,text/csv" onchange="processCSV(this)"></div>
+</div>
+
+<!-- ADD / EDIT LEAD (ASSESSMENT) -->
+<div class="modal-bg" id="lead-modal">
+  <div class="modal">
+    <div class="handle"></div>
+    <div class="modal-title" id="lead-modal-title">New Lead</div>
+    <div class="page-sub" style="margin:2px 0 14px">Fill what you know now — the rest fills in as you talk to them.</div>
+    <input type="hidden" id="lm-id">
+    <div id="lm-preview"></div>
+    <div id="lm-form"></div>
+    <button class="btn btn-burn btn-block" style="margin-top:8px" onclick="saveLead()">Save lead</button>
+    <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="closeModal('lead-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- LEAD PROFILE -->
+<div class="modal-bg" id="profile-modal"><div class="modal" id="profile-body"></div></div>
+
+<!-- LOG CONTACT -->
+<div class="modal-bg" id="log-modal">
+  <div class="modal">
+    <div class="handle"></div>
+    <div class="modal-title">Log contact</div>
+    <div class="page-sub" id="log-for" style="margin:2px 0 16px"></div>
+    <input type="hidden" id="log-id">
+    <div class="row">
+      <div class="field"><label class="lbl">Type</label><select id="log-type"><option>Call</option><option>Text</option><option>Email</option><option>Meeting</option><option>Note</option></select></div>
+      <div class="field"><label class="lbl">Outcome</label><select id="log-outcome"><option value="">—</option><option>Connected</option><option>No answer</option><option>Left voicemail</option><option>Interested</option><option>Not interested</option><option>Booked meeting</option><option>Follow up later</option></select></div>
+    </div>
+    <div class="field"><label class="lbl">What happened / what you learned</label><textarea id="log-notes" placeholder="They said their site is 5 years old and gets no calls…"></textarea></div>
+    <div class="row">
+      <div class="field"><label class="lbl">Move to stage</label><select id="log-stage"></select></div>
+      <div class="field"><label class="lbl">Flag</label><select id="log-status"><option value="active">Active</option><option value="callback">Call back</option><option value="paused">Paused</option></select></div>
+    </div>
+    <div class="field"><label class="lbl">Next action date <span class="opt">(optional)</span></label><input type="date" id="log-next"></div>
+    <button class="btn btn-burn btn-block" onclick="saveLog()">Save & update</button>
+    <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="closeModal('log-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ANALYSIS EMAIL -->
+<div class="modal-bg" id="email-modal">
+  <div class="modal">
+    <div class="handle"></div>
+    <div class="modal-title">Analysis email</div>
+    <div class="page-sub" id="email-for" style="margin:2px 0 16px"></div>
+    <input type="hidden" id="email-id">
+    <div class="field"><label class="lbl">Subject</label><input type="text" id="email-subject"></div>
+    <div class="field"><label class="lbl">Body <span class="opt">(edit anything before you send)</span></label><textarea id="email-body" style="min-height:340px;font-size:13px;line-height:1.6"></textarea></div>
+    <div style="display:flex;gap:7px"><button class="btn btn-burn" style="flex:1" onclick="sendEmail()">✉ Open in Gmail</button><button class="btn btn-ghost" style="flex:1" onclick="copyEmail()">📋 Copy</button></div>
+    <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="closeModal('email-modal')">Close</button>
+  </div>
+</div>
+
+<button class="fab" id="fab" onclick="openAddLead()">+</button>
+<div class="nav">
+  <button class="nv active" id="nv-dashboard" onclick="goPage('dashboard')"><span class="ic">◇</span><span class="lb">Dashboard</span></button>
+  <button class="nv" id="nv-leads" onclick="goPage('leads')"><span class="ic">◈</span><span class="lb">Leads</span></button>
+  <button class="nv" id="nv-settings" onclick="goPage('settings')"><span class="ic">⚙</span><span class="lb">Settings</span></button>
+</div>
+<div id="toast"></div>
+
+<script>
+// ══════════════ BACKEND ══════════════
+const SB='https://nzmfrwddmckviovdstmr.supabase.co';
+const SK='sb_publishable_tJoDpcRWqTmi5t9RP_Dcsw_f-54PEzY';
+let currentWorkspace={id:'mbm-main',name:'Motion by Movements'};
+let allLeads=[]; let currentStageFilter='all'; let currentProfileId=null;
+let currentAuditContactId=null; let lastAuditSig=''; let leadView='list';
+
+async function sbFetch(path,opts={}){ return fetch(SB+path,{...opts,headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}}); }
+function toast(m){ const el=document.getElementById('toast'); el.textContent=m; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),2800); }
+function setSync(s){ const el=document.getElementById('sync'); if(el) el.className='sync-dot '+s; }
+function getWSKey(k){ return 'mbm_'+(currentWorkspace?currentWorkspace.id:'default')+'_'+k; }
+function lsGet(k){ try{ return JSON.parse(localStorage.getItem(getWSKey(k))); }catch{ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(getWSKey(k),JSON.stringify(v)); }catch{} }
+function getMe(){ return localStorage.getItem('mbm_me')||'Andrew'; }
+function setMe(v){ localStorage.setItem('mbm_me',(v||'').trim()||'Andrew'); toast('Saved'); }
+function getBooking(){ return localStorage.getItem('mbm_booking')||''; }
+function setBooking(v){ localStorage.setItem('mbm_booking',(v||'').trim()); toast('Saved'); }
+function getPhone(){ return localStorage.getItem('mbm_phone')||'314-810-4042'; }
+function setPhone(v){ localStorage.setItem('mbm_phone',(v||'').trim()); toast('Saved'); }
+// ── Google Voice calling (same business number on phone & laptop) ──
+function getGV(){ const v=localStorage.getItem('mbm_gv'); return v==null?'(314) 695-8076':v; }
+function setGV(v){ localStorage.setItem('mbm_gv',(v||'').trim()); toast('Saved'); }
+function getCallMethod(){ return localStorage.getItem('mbm_call_method')||'web'; }
+function setCallMethod(v){ localStorage.setItem('mbm_call_method',v); toast('Call method saved'); renderSettings&&renderSettings(); }
+function getGVAcct(){ return localStorage.getItem('mbm_gv_acct')||'1'; }
+function setGVAcct(v){ localStorage.setItem('mbm_gv_acct',(String(v).replace(/\D/g,'')||'0')); toast('Saved'); }
+function e164(p){ const d=(p||'').replace(/\D/g,''); if(d.length===11&&d[0]==='1') return '+'+d; if(d.length===10) return '+1'+d; return '+'+d; }
+function gvCallUrl(p){ return 'https://voice.google.com/u/'+getGVAcct()+'/calls?a=nc,'+encodeURIComponent(e164(p)); }
+function gvTextUrl(p){ return 'https://voice.google.com/u/'+getGVAcct()+'/messages?itemId=t.%2B'+e164(p).replace('+','')+'#'; }
+// 'oneclick' & 'device' → a tel:/sms: link (Google Voice dials it once set as the browser's
+// phone-link handler; otherwise the device dialer). 'web' → the Google Voice web dialer tab.
+function callHref(p){ return getCallMethod()==='web'?gvCallUrl(p):'tel:'+e164(p); }
+function callAttr(){ return getCallMethod()==='web'?' target="_blank" rel="noopener"':''; }
+// Google Voice has no one-click "new text" link, so copy the number and open GV messages to paste.
+function openText(id){ const c=allLeads.find(x=>x.id===id); if(!c||!c.phone) return;
+  if(getCallMethod()==='web'){ const n=e164(c.phone);
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(n).catch(()=>fallbackCopy(n)); } else fallbackCopy(n);
+    window.open('https://voice.google.com/u/'+getGVAcct()+'/messages','_blank');
+    toast('Number '+n+' copied — tap ✎ New message & paste');
+  } else { window.location.href='sms:'+e164(c.phone); } }
+// Email opens Gmail compose (not Apple Mail).
+function gmailUrl(to,su,body){ let u='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(to||''); if(su)u+='&su='+encodeURIComponent(su); if(body)u+='&body='+encodeURIComponent(body); return u; }
+function lsGetKnownIds(){ try{ const v=JSON.parse(localStorage.getItem(getWSKey('known_ids'))); return Array.isArray(v)?v:[]; }catch{ return []; } }
+function lsSetKnownIds(a){ try{ localStorage.setItem(getWSKey('known_ids'),JSON.stringify(a)); }catch{} }
+function lsGetDeletedIds(){ try{ const v=JSON.parse(localStorage.getItem(getWSKey('deleted_ids'))); return Array.isArray(v)?v:[]; }catch{ return []; } }
+function lsSetDeletedIds(a){ try{ localStorage.setItem(getWSKey('deleted_ids'),JSON.stringify(Array.from(new Set(a)))); }catch{} }
+function lsAddDeletedId(id){ const s=new Set(lsGetDeletedIds()); s.add(id); lsSetDeletedIds(Array.from(s)); }
+
+function mergeLeads(a,b){
+  const stamp=c=>new Date(c.updated_at||c.created_at||0).getTime(); const map={};
+  [].concat(a||[],b||[]).forEach(c=>{ if(!c||c.id==null) return; const ex=map[c.id];
+    if(!ex){ map[c.id]=c; return; }
+    const newer=stamp(c)>=stamp(ex)?c:ex, older=newer===c?ex:c; const m=Object.assign({},older,newer);
+    Object.keys(older).forEach(k=>{ if((m[k]==null||m[k]==='') && older[k]!=null && older[k]!=='') m[k]=older[k]; });
+    map[c.id]=m; });
+  return Object.values(map);
+}
+const SAFE_COLS=['id','workspace_id','name','business','industry','phone','email','stage','source','website','facebook','instagram','notes','log','last_contact','next_action','next_action_date','created_at','updated_at'];
+function safeLead(c){ const o={}; SAFE_COLS.forEach(k=>{ if(c[k]!==undefined) o[k]=c[k]; }); return o; }
+
+async function getLeads(){
+  const wsId=currentWorkspace.id; const local=lsGet('leads')||[];
+  try{
+    const res=await sbFetch('/rest/v1/mbm_contacts?workspace_id=eq.'+encodeURIComponent(wsId)+'&order=created_at.desc&select=*');
+    if(!res.ok) throw 0; const data=await res.json(); if(!Array.isArray(data)) throw 0;
+    const del=new Set(lsGetDeletedIds()); data.forEach(c=>{ if(c&&(c.deleted===true||c.deleted==='true')) del.add(c.id); }); lsSetDeletedIds(Array.from(del));
+    const live=data.filter(c=>!(c&&(c.deleted===true||c.deleted==='true')));
+    const remoteIds=new Set(live.map(c=>c.id)); const known=new Set(lsGetKnownIds()); const cloudReal=data.length>0;
+    const kept=local.filter(c=>!(cloudReal&&known.has(c.id)&&!remoteIds.has(c.id)));
+    let merged=mergeLeads(kept,live).filter(c=>!del.has(c.id));
+    lsSet('leads',merged); if(cloudReal) lsSetKnownIds(Array.from(remoteIds)); setSync('ok'); return merged;
+  }catch(e){ setSync('err'); return local; }
+}
+async function saveLead_DB(c){
+  setSync('syncing'); c.workspace_id=currentWorkspace.id; c.updated_at=new Date().toISOString();
+  const leads=lsGet('leads')||[]; const i=leads.findIndex(x=>x.id===c.id); if(i>=0) leads[i]=c; else leads.unshift(c);
+  lsSet('leads',leads); allLeads=leads;
+  try{ let res=await sbFetch('/rest/v1/mbm_contacts',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(c)});
+    if(!res.ok&&[400,404,409].includes(res.status)) res=await sbFetch('/rest/v1/mbm_contacts',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(safeLead(c))});
+    setSync(res.ok?'ok':'err');
+  }catch(e){ setSync('err'); }
+}
+async function deleteLead(id){
+  if(!confirm('Delete this lead? Removes them everywhere.')) return;
+  lsAddDeletedId(id); const leads=(lsGet('leads')||[]).filter(c=>c.id!==id); lsSet('leads',leads); allLeads=leads;
+  closeModal('profile-modal'); renderAll(); setSync('syncing');
+  try{ let res=await sbFetch('/rest/v1/mbm_contacts?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify({deleted:true,updated_at:new Date().toISOString()})});
+    if(!res.ok) res=await sbFetch('/rest/v1/mbm_contacts?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{'Prefer':'return=minimal'}});
+    setSync(res.ok?'ok':'err');
+  }catch(e){ setSync('err'); } toast('Lead deleted');
+}
+
+// ══════════════ DOMAIN ══════════════
+const STAGES=[{k:'new',label:'New',color:'#6b7280'},{k:'assessed',label:'Assessed',color:'#6b8afd'},{k:'contacted',label:'Contacted',color:'#8f7bff'},{k:'booked',label:'Call Booked',color:'#e8a13a'},{k:'proposal',label:'Proposal',color:'#ff6a1f'},{k:'sprint',label:'30-Day Sprint',color:'#2dd4bf'},{k:'partner',label:'Growth Partner',color:'#22c55e'},{k:'lost',label:'Lost',color:'#4b4b55'}];
+const CLIENT_STAGES=['sprint','partner'];
+const STAGE_MAP={}; STAGES.forEach(s=>STAGE_MAP[s.k]=s);
+const STATUS={active:{label:'Active',color:'#2dd4bf'},callback:{label:'Call back',color:'#6b8afd'},paused:{label:'Paused',color:'#e8a13a'}};
+const INDUSTRIES=['HVAC / heating & air','Plumbing','Electrician','Roofing','Landscaping / lawn','Cleaning service','Pest control','General contractor / remodeler','Dentist / orthodontist','Medical / clinic','Chiropractor','Med spa / aesthetics','Gym / fitness studio','Salon / barbershop','Spa / massage','Restaurant / café','Auto repair / detailing','Law firm / attorney','Accountant / bookkeeper','Real estate agent','Other / not sure'];
+
+// select option lists
+const OPT={
+  years:['Under 1 year','1–3 years','3–7 years','7+ years'],
+  team:['Just the owner','2–5','6–15','16+'],
+  revenue:['Under $10k','$10k–$30k','$30k–$75k','$75k–$150k','$150k+','Not sure'],
+  hours:['Under 20','20–40','40–60','60+'],
+  focus:['Doing the work / delivery','Sales & chasing leads','Admin & operations','Managing people','A bit of everything — no focus'],
+  howfind:['Word of mouth / referrals','Google search / Maps','Social media','Paid ads','Walk-in / signage','Repeat customers','Not sure'],
+  timeline:['As soon as possible','In the next 1–3 months','Within 6 months','Just exploring'],
+  budget:['Yes — ready now','Soon / building toward it','Not yet']
+};
+const PAINS={
+  pain_marketing:{label:'Marketing & getting found',opts:['Not showing up on Google','Weak / outdated website','Inconsistent social media','No paid ads running','Not enough leads','Brand looks unprofessional']},
+  pain_sales:{label:'Sales & conversion',opts:["Leads don't convert",'No follow-up system','Not sure what to charge / underpricing','No clear offer or packages','Losing quotes to competitors','No referral / review engine']},
+  pain_operations:{label:'Operations & delivery',opts:['Everything depends on the owner','No documented systems/SOPs','Manual work that could be automated','Inconsistent customer experience','Scheduling / no-show chaos',"Can't take on more without breaking"]},
+  pain_strategy:{label:'Strategy, finance & mindset',opts:['No clear growth plan',"Don't know the numbers",'Cash flow tight/unpredictable','Overwhelmed / burnt out','Stuck at the same revenue','No real goals or accountability']}
+};
+// pain / gap -> MBM service
+const SERVICE_PITCH={'Website':'Build/upgrade their site into a lead-converting home base.','Google Business Profile':'Optimize their Google profile so they show up in local search & Maps.','Social Presence':'Establish credible, active social profiles so they look legit.','Review Management':'Set up a system that generates a steady stream of 5-star reviews.','Consistent Content':'Keep them visible & top-of-mind with regular on-brand content.','Positioning':'Lock in one clear message so they stand out and can charge more.','Meta Advertising':'Open a predictable lead channel with Facebook/Instagram ads.','AI Systems':'Automate booking, follow-up & lead capture so nothing slips.','Business Strategy':'Map the growth plan so their marketing compounds.'};
+const SERVICE_ORDER=['Website','Google Business Profile','Social Presence','Review Management','Consistent Content','Positioning','Meta Advertising','AI Systems','Business Strategy'];
+const PAIN_SERVICE={
+  'Not showing up on Google':'Google Business Profile','Weak / outdated website':'Website','Inconsistent social media':'Social Presence','No paid ads running':'Meta Advertising','Not enough leads':'Meta Advertising','Brand looks unprofessional':'Positioning',
+  "Leads don't convert":'AI Systems','No follow-up system':'AI Systems','Not sure what to charge / underpricing':'Positioning','No clear offer or packages':'Positioning','Losing quotes to competitors':'Positioning','No referral / review engine':'Review Management',
+  'Everything depends on the owner':'AI Systems','No documented systems/SOPs':'Business Strategy','Manual work that could be automated':'AI Systems','Inconsistent customer experience':'Business Strategy','Scheduling / no-show chaos':'AI Systems',"Can't take on more without breaking":'Business Strategy',
+  'No clear growth plan':'Business Strategy',"Don't know the numbers":'Business Strategy','Cash flow tight/unpredictable':'Business Strategy','Overwhelmed / burnt out':'Business Strategy','Stuck at the same revenue':'Business Strategy','No real goals or accountability':'Business Strategy'
+};
+// industry $ defaults: [avg value per customer, leads/mo, close rate]
+const IND_DEF={'HVAC / heating & air':[6000,60,.30],'Plumbing':[450,120,.40],'Electrician':[600,80,.40],'Roofing':[9000,40,.25],'Landscaping / lawn':[3000,50,.30],'Cleaning service':[300,90,.40],'Pest control':[350,100,.40],'General contractor / remodeler':[15000,30,.20],'Dentist / orthodontist':[900,60,.35],'Medical / clinic':[500,120,.40],'Chiropractor':[1500,70,.35],'Med spa / aesthetics':[500,90,.30],'Gym / fitness studio':[600,80,.35],'Salon / barbershop':[80,200,.55],'Spa / massage':[120,150,.50],'Restaurant / café':[45,1500,.70],'Auto repair / detailing':[400,150,.50],'Law firm / attorney':[3500,40,.25],'Accountant / bookkeeper':[2000,50,.35],'Real estate agent':[9000,40,.25],'Other / not sure':[600,60,.35]};
+// Per-industry sensitivity: how much each digital lever moves the needle for THAT vertical.
+// 1.0 = baseline; >1 = matters more, <1 = matters less. Informed estimates from how local
+// digital marketing performs by industry (research-based defaults, tweakable).
+// Order: [web, reviews, search, ads, social, booking, speed, retention]
+const LEVERS=['web','reviews','search','ads','social','booking','speed','retention'];
+const INDUSTRY_PROFILE={
+  'HVAC / heating & air':[1.2,1.3,1.4,1.2,0.7,0.9,1.4,1.1],
+  'Plumbing':[1.0,1.3,1.4,1.1,0.6,0.9,1.5,1.0],
+  'Electrician':[1.0,1.3,1.4,1.0,0.6,0.8,1.4,0.9],
+  'Roofing':[1.4,1.4,1.3,1.2,0.9,0.6,1.3,0.6],
+  'Landscaping / lawn':[1.1,1.2,1.2,1.1,1.1,0.8,1.1,1.3],
+  'Cleaning service':[1.0,1.3,1.2,1.2,0.9,1.1,1.2,1.4],
+  'Pest control':[1.0,1.3,1.4,1.1,0.6,0.9,1.3,1.3],
+  'General contractor / remodeler':[1.5,1.5,1.2,1.0,1.1,0.5,1.2,0.6],
+  'Dentist / orthodontist':[1.3,1.4,1.3,1.1,0.9,1.3,1.1,1.4],
+  'Medical / clinic':[1.2,1.3,1.3,0.9,0.7,1.4,1.0,1.3],
+  'Chiropractor':[1.2,1.4,1.3,1.2,0.9,1.3,1.1,1.4],
+  'Med spa / aesthetics':[1.2,1.3,1.1,1.4,1.5,1.3,1.2,1.4],
+  'Gym / fitness studio':[1.1,1.2,1.1,1.4,1.5,1.1,1.2,1.5],
+  'Salon / barbershop':[0.8,1.3,1.2,1.1,1.5,1.4,1.0,1.5],
+  'Spa / massage':[0.9,1.3,1.2,1.2,1.4,1.4,1.1,1.4],
+  'Restaurant / café':[0.8,1.5,1.3,1.1,1.5,0.9,0.7,1.3],
+  'Auto repair / detailing':[0.9,1.4,1.4,1.0,0.8,1.0,1.2,1.3],
+  'Law firm / attorney':[1.4,1.4,1.4,1.2,0.7,0.8,1.4,0.6],
+  'Accountant / bookkeeper':[1.2,1.2,1.2,0.8,0.7,0.9,1.2,1.5],
+  'Real estate agent':[1.2,1.3,1.1,1.3,1.5,0.8,1.4,1.0],
+  'Other / not sure':[1,1,1,1,1,1,1,1]
+};
+function W(c,lever){ const p=INDUSTRY_PROFILE[c.industry]||INDUSTRY_PROFILE['Other / not sure']; const i=LEVERS.indexOf(lever); return i>=0?p[i]:1; }
+
+// audit tool mappings
+function crmIndustryToAuditKey(s){ s=(s||'').toLowerCase(); const R=[[/hvac|heating|furnace|air condition|cooling/,'HVAC / heating & air'],[/plumb/,'Plumbing'],[/electric/,'Electrician'],[/roof/,'Roofing'],[/landscap|lawn|yard/,'Landscaping / lawn'],[/clean|maid|janitor/,'Cleaning service'],[/pest/,'Pest control'],[/contractor|remodel|construction|builder|handyman/,'General contractor / remodeler'],[/dentist|dental|orthodont/,'Dentist / orthodontist'],[/med spa|medspa|aesthetic|botox/,'Med spa / aesthetics'],[/chiro/,'Chiropractor'],[/medical|clinic|doctor|physician/,'Medical / clinic'],[/gym|fitness|crossfit|pilates|yoga/,'Gym / fitness studio'],[/salon|barber|hair|nail/,'Salon / barbershop'],[/massage|spa/,'Spa / massage'],[/restaurant|cafe|café|food|diner|bakery/,'Restaurant / café'],[/auto|car|mechanic|detail|tire/,'Auto repair / detailing'],[/law|attorney|legal|lawyer/,'Law firm / attorney'],[/account|bookkeep|cpa|tax/,'Accountant / bookkeeper'],[/real estate|realtor|realty/,'Real estate agent']]; for(const[re,key]of R){ if(re.test(s)) return key; } return 'Other / not sure'; }
+const MKT_GAP_KEY={'Not showing up on Google':'no_gbp','Weak / outdated website':'old_site','Inconsistent social media':'no_social','No paid ads running':'no_ads','Not enough leads':'weak_local','Brand looks unprofessional':'inconsistent_brand','No follow-up system':'no_cta','No referral / review engine':'few_reviews'};
+function leadGapKeys(c){ const o=[]; const all=[].concat(A(c,'pain_marketing')||[],A(c,'pain_sales')||[]); all.forEach(p=>{ const g=MKT_GAP_KEY[p]; if(g&&o.indexOf(g)<0) o.push(g); }); return o; }
+
+// ══════════════ ASSESSMENT ENGINE ══════════════
+function A(c,k){ return c.assessment&&c.assessment[k]!=null?c.assessment[k]:''; }
+function num(v){ if(v===''||v==null) return null; const n=parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; }
+function allPains(c){ return [].concat(A(c,'pain_marketing')||[],A(c,'pain_sales')||[],A(c,'pain_operations')||[],A(c,'pain_strategy')||[]); }
+
+// Baseline assumption: they MEET the industry standard on everything we can't see.
+// The digital gaps we OBSERVE are what pull them below standard and create the risk.
+// Any real number they give us then REPLACES the assumption for an exact figure.
+function revenueInputs(c){
+  const def=IND_DEF[c.industry]||IND_DEF['Other / not sure'];
+  const r=k=>num(A(c,k));
+  const Vreal=(r('value_per_customer')!=null||r('avg_customer_value')!=null);
+  const V=r('value_per_customer')||r('avg_customer_value')||def[0];
+  const Lreal=r('leads_per_month')!=null; const L=Lreal?r('leads_per_month'):def[1];
+  const cStd=def[2]; // the industry-standard close rate (what a gap-free business hits)
+  const creal=r('close_rate_pct')!=null; const cActual=creal?r('close_rate_pct')/100:null; const cUse=cActual!=null?cActual:cStd;
+  const slowReal=r('slow_followup_pct')!=null; const slow=slowReal?r('slow_followup_pct')/100:null;
+  const nsReal=r('no_shows_month')!=null; const noShows=nsReal?r('no_shows_month'):null;
+  const repReal=r('repeat_rate_pct')!=null; const repeat=repReal?r('repeat_rate_pct')/100:null;
+  const real={V:Vreal,L:Lreal,c:creal,slow:slowReal,ns:nsReal,rep:repReal};
+  const realCount=Object.values(real).filter(Boolean).length;
+  const tier=realCount>=4?'Verified':realCount>=1?'Partial data':'From observed gaps';
+  return {def,V,L,cStd,cActual,cUse,slow,noShows,repeat,real,realCount,tier,target:cUse};
+}
+// Each observed gap drags a business below standard on a specific lever (base %),
+// then the industry weight (W) scales how much that lever matters for that vertical.
+const CONV_GAPS=[
+  {g:'No website',base:0.25,lever:'web'},
+  {g:'Weak / outdated website',base:0.12,lever:'web'},
+  {g:'Website not mobile-friendly',base:0.10,lever:'web'},
+  {g:'No lead capture (form/chat)',base:0.08,lever:'web'},
+  {g:'Poor Google profile',base:0.08,lever:'search'},
+  {g:'Few / no reviews',base:0.15,lever:'reviews'},
+  {g:"Doesn't respond to reviews",base:0.05,lever:'reviews'},
+  {g:'Inconsistent branding',base:0.08,lever:'web'}
+];
+function revenueAtRisk(c){
+  const I=revenueInputs(c); const {V,L,cStd,cActual,cUse,slow,noShows,repeat}=I; const gaps=new Set(c.issues||[]);
+  const ind=c.industry?c.industry.split(' /')[0]:'this industry';
+  // 1) Lost conversions — measured below-standard close rate, else trust gaps (industry-weighted)
+  let convLoss,convWhy;
+  if(cActual!=null){ convLoss=L*Math.max(cStd-cActual,0)*V; convWhy='They close ~'+Math.round(cActual*100)+'% vs the ~'+Math.round(cStd*100)+'% '+ind+' standard. Every point under standard is lost deals.'; }
+  else { let pen=0; CONV_GAPS.forEach(x=>{ if(gaps.has(x.g)) pen+=x.base*W(c,x.lever); }); pen=Math.min(pen,0.6); convLoss=L*cStd*pen*V; convWhy=pen>0?'Trust/conversion gaps drop their close ~'+Math.round(pen*100)+'% below the '+Math.round(cStd*100)+'% '+ind+' standard — weighted for how much this matters in '+ind+'.':''; }
+  // 2) Slow follow-up / speed-to-lead — measured, else follow-up gaps (industry-weighted)
+  let followLoss,followWhy;
+  if(slow!=null){ followLoss=L*slow*cUse*V; followWhy='~'+Math.round(slow*100)+'% of leads get slow/no follow-up and go cold.'; }
+  else if(gaps.has('No email / follow-up')||gaps.has('Slow lead response')){ const base=gaps.has('Slow lead response')?0.35:0.30; const p=Math.min(base*W(c,'speed'),0.6); followLoss=L*p*cUse*V; followWhy='Slow/no follow-up — an estimated '+Math.round(p*100)+'% of leads go cold before they buy (speed-to-lead is '+(W(c,'speed')>=1.2?'critical':'important')+' in '+ind+').'; }
+  else { followLoss=0; followWhy=''; }
+  // 3) No-shows / booking — measured, else booking/automation gaps (industry-weighted)
+  let noShowLoss,noShowWhy;
+  if(noShows!=null){ noShowLoss=noShows*V; noShowWhy='~'+noShows+' booked jobs/mo that cancel or no-show — each worth $'+Math.round(V).toLocaleString()+'.'; }
+  else if(gaps.has('No online booking')||gaps.has('Manual scheduling / no automation')){ const base=gaps.has('Manual scheduling / no automation')?0.07:0.05; const p=Math.min(base*W(c,'booking'),0.15); noShowLoss=L*cUse*p*V; noShowWhy='No online booking / manual scheduling — ready buyers slip away and ~'+Math.round(p*100)+'% of jobs flake without reminders.'; }
+  else { noShowLoss=0; noShowWhy=''; }
+  // 4) Weak retention — measured, else follow-up/automation gaps (industry-weighted)
+  let repeatLoss,repeatWhy;
+  if(repeat!=null){ repeatLoss=(L*cUse)*Math.max(0.50-repeat,0)*V; repeatWhy='Only ~'+Math.round(repeat*100)+'% of customers return; the standard with a retention system is ~50%.'; }
+  else if(gaps.has('No email / follow-up')||gaps.has('Manual scheduling / no automation')){ const p=Math.min(0.15*W(c,'retention'),0.35); repeatLoss=(L*cUse)*p*V; repeatWhy='No retention/automation — repeat business runs ~'+Math.round(p*100)+'% below what it could ('+ind+' is a '+(W(c,'retention')>=1.2?'high':'moderate')+'-repeat business).'; }
+  else { repeatLoss=0; repeatWhy=''; }
+  const monthly=convLoss+followLoss+noShowLoss+repeatLoss;
+  const lowMult=I.realCount>=4?0.72:I.realCount>=1?0.60:0.45;
+  const components=[
+    {key:'conv',label:'Lost conversions',amount:Math.round(convLoss),explain:convWhy,issue:"Leads reach you but don't book",fix:'We rebuild what a lead actually sees — a fast, modern website, visible 5-star reviews, and a clear reason to choose you — so more of the people already finding you turn into paying customers.'},
+    {key:'follow',label:'Slow / no follow-up',amount:Math.round(followLoss),explain:followWhy,issue:'Leads go cold before anyone follows up',fix:'We set up automated instant follow-up — a text and email the second a lead comes in, plus reminders after — so nobody slips away while you’re out on a job.'},
+    {key:'noshow',label:'No-shows / cancellations',amount:Math.round(noShowLoss),explain:noShowWhy,issue:'No-shows and cancellations',fix:'We add simple online booking with automatic reminders and confirmations, so far fewer appointments cancel or ghost.'},
+    {key:'repeat',label:'Weak repeat business',amount:Math.round(repeatLoss),explain:repeatWhy,issue:"Customers don't come back",fix:'We put a review-and-rebooking system in place that automatically asks happy customers to leave a review and come back — turning one-time jobs into repeat revenue.'}
+  ].filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount);
+  return { low:Math.round(monthly*lowMult), high:Math.round(monthly), source:I.tier, realCount:I.realCount, real:I.real, atStandard:monthly<1, components, inputs:{V,L,cStd,cUse} };
+}
+// How the priority score is built — exposed so it can be shown & explained.
+function priorityParts(c){
+  const tl={'As soon as possible':38,'In the next 1–3 months':28,'Within 6 months':16,'Just exploring':6};
+  const bd={'Yes — ready now':16,'Soon / building toward it':9,'Not yet':2};
+  const t=A(c,'timeline'),b=A(c,'budget_readiness'),pw=num(A(c,'pain_weight'))||0,cm=num(A(c,'commitment'))||0;
+  return [
+    {label:'Timeline',val:t||'not asked yet',pts:tl[t]||0,max:38,note:'How soon they want it fixed'},
+    {label:'Pain weight',val:pw?pw+'/10':'not asked yet',pts:Math.round(pw*2.6),max:26,note:'How much it weighs on them'},
+    {label:'Commitment',val:cm?cm+'/10':'not asked yet',pts:Math.round(cm*2.0),max:20,note:'How committed to doing the work'},
+    {label:'Budget readiness',val:b||'not asked yet',pts:bd[b]||0,max:16,note:'Ready to invest in fixing it'}
+  ];
+}
+// NEW money they could CAPTURE by fixing how they get found (growth upside).
+const GROWTH_CHANNELS=[
+  {opts:['Not showing up on Google','Not on Google (no profile)','Poor Google profile','Not ranking / no SEO','Not enough leads'],pct:0.25,lever:'search',label:'Google & local search',explain:'Showing up when locals search "your service near me" brings in new inbound leads you currently miss.'},
+  {opts:['No paid ads running','Not running ads'],pct:0.30,lever:'ads',label:'Paid ads',explain:'Meta/Google ads open a predictable new stream of leads you can turn on and scale.'},
+  {opts:['No website','Weak / outdated website','Website not mobile-friendly'],pct:0.15,lever:'web',label:'Website / conversion',explain:'A strong site turns more of the visitors you already get into booked customers.'},
+  {opts:['No social media','Inconsistent social media','Inactive social','Brand looks unprofessional','Inconsistent branding'],pct:0.10,lever:'social',label:'Social & brand',explain:'An active, credible presence builds the trust that turns lookers into leads.'}
+];
+function hasGap(c,opts){ const set=new Set([].concat(c.issues||[],allPains(c))); return opts.some(o=>set.has(o)); }
+function growthOpportunity(c){
+  const {V,L,target}=revenueInputs(c);
+  let uplift=0; const comps=[];
+  GROWTH_CHANNELS.forEach(ch=>{ if(hasGap(c,ch.opts)){ const p=ch.pct*W(c,ch.lever); uplift+=p; comps.push({label:ch.label,pct:p,explain:ch.explain}); } });
+  uplift=Math.min(uplift,0.80);
+  const newLeads=L*uplift;
+  const monthly=newLeads*target*V; // new leads, converted at an improved close rate
+  comps.forEach(x=>{ x.amount=Math.round((uplift?x.pct/uplift:0)*monthly); });
+  comps.sort((a,b)=>b.amount-a.amount);
+  return { low:Math.round(monthly*0.5), high:Math.round(monthly), leadsUnlocked:Math.round(newLeads), upliftPct:Math.round(uplift*100), components:comps, inputs:{V,L,target} };
+}
+function leadPriority(c){
+  const tl={'As soon as possible':38,'In the next 1–3 months':28,'Within 6 months':16,'Just exploring':6};
+  const bd={'Yes — ready now':16,'Soon / building toward it':9,'Not yet':2};
+  const timelinePts=tl[A(c,'timeline')]||0;
+  const painPts=(num(A(c,'pain_weight'))||0)*2.6;
+  const commitPts=(num(A(c,'commitment'))||0)*2.0;
+  const budgetPts=bd[A(c,'budget_readiness')]||0;
+  const score=Math.max(0,Math.min(100,Math.round(timelinePts+painPts+commitPts+budgetPts)));
+  let bucket,color,emoji;
+  if(score>=70){ bucket='Hot — act now'; color='#ff6a1f'; emoji='🔥'; }
+  else if(score>=45){ bucket='Warm — nurture'; color='#e8a13a'; emoji='🌤'; }
+  else { bucket='Cool — long game'; color='#6b8afd'; emoji='❄'; }
+  return {score,bucket,color,emoji};
+}
+function issuesInfo(c){
+  const gaps=(c.issues||[]); const pains=allPains(c);
+  const count=gaps.length+pains.length;
+  let sev='MEDIUM';
+  if(gaps.indexOf('No website')>=0||gaps.indexOf('Not on Google (no profile)')>=0||count>=8) sev='CRITICAL';
+  else if(count>=4) sev='HIGH';
+  return {count,sev};
+}
+function servicesToPitch(c){
+  const m={};
+  (c.issues||[]).forEach(g=>{ (GAP_SERVICE[g]||[]).forEach(s=>{ if(!m[s])m[s]=new Set(); m[s].add(g); }); });
+  allPains(c).forEach(p=>{ const s=PAIN_SERVICE[p]; if(s){ if(!m[s])m[s]=new Set(); m[s].add(p); } });
+  return SERVICE_ORDER.filter(s=>m[s]).map(s=>({service:s,pitch:SERVICE_PITCH[s],because:Array.from(m[s])}));
+}
+const GAP_SERVICE={'No website':['Website'],'Weak / outdated website':['Website','Positioning'],'Website not mobile-friendly':['Website'],'No lead capture (form/chat)':['Website','AI Systems'],'Not on Google (no profile)':['Google Business Profile'],'Poor Google profile':['Google Business Profile','Review Management'],'Few / no reviews':['Review Management'],"Doesn't respond to reviews":['Review Management'],'Not running ads':['Meta Advertising','Business Strategy'],'No social media':['Social Presence'],'Inactive social':['Social Presence','Consistent Content'],'Not ranking / no SEO':['Website','Positioning','Google Business Profile'],'No online booking':['AI Systems','Website'],'Manual scheduling / no automation':['AI Systems','Business Strategy'],'Slow lead response':['AI Systems'],'Inconsistent branding':['Positioning','Consistent Content'],'No email / follow-up':['AI Systems','Business Strategy']};
+// Per-gap plain-English finding + fix, so the analysis email speaks to the EXACT issues checked.
+const GAP_DETAIL={
+  'No website':{finding:"you don't have a real website, so anyone who Googles you finds nothing to trust or act on",fix:"We build you a fast, modern site designed to turn visitors into booked jobs"},
+  'Weak / outdated website':{finding:"your website looks dated and loads slow, which quietly costs you trust and conversions",fix:"We rebuild it into a clean, mobile-first site built to convert"},
+  'Website not mobile-friendly':{finding:"your site doesn't work well on phones — where most of your visitors are",fix:"We make it fast and seamless on mobile so you stop losing those people"},
+  'No lead capture (form/chat)':{finding:"there's no easy way for a visitor to reach you — no form, click-to-call, or chat",fix:"We add clear lead capture so interested visitors actually reach out"},
+  'Not on Google (no profile)':{finding:"you're not on Google Maps, so you're invisible to people searching for you right now",fix:"We set up and optimize your Google Business Profile so you show up in local search"},
+  'Poor Google profile':{finding:"your Google profile is incomplete, so you rank below competitors in local search",fix:"We fully optimize it — categories, photos, posts, services — to climb the local pack"},
+  'Few / no reviews':{finding:"you have very few reviews, so prospects pick the business with stronger social proof",fix:"We install a system that steadily generates real 5-star reviews"},
+  "Doesn't respond to reviews":{finding:"you're not replying to reviews, which hurts trust and your Google ranking",fix:"We manage review responses to build trust and boost your local SEO"},
+  'Not running ads':{finding:"you're not running any ads, so you only get whoever happens to stumble onto you",fix:"We launch targeted Google/Meta ads to open a predictable stream of new leads"},
+  'No social media':{finding:"you have almost no social presence, so you look smaller and less established than you are",fix:"We establish credible, active profiles that build trust with prospects"},
+  'Inactive social':{finding:"your social pages have gone quiet, which reads as a struggling business",fix:"We run consistent content that keeps you visible and top-of-mind"},
+  'Not ranking / no SEO':{finding:"you're not ranking in search, so competitors capture the demand before you",fix:"We handle local SEO so you get found for the searches that actually matter"},
+  'No online booking':{finding:"there's no easy way to book you, so ready-to-buy leads slip through the cracks",fix:"We add online booking with reminders so you capture and keep more appointments"},
+  'Manual scheduling / no automation':{finding:"scheduling and follow-up are all manual, which eats your time and drops leads",fix:"We automate booking, reminders, and follow-up so nothing slips"},
+  'Slow lead response':{finding:"leads aren't contacted fast enough and go cold before they buy",fix:"We set up instant text + email follow-up the second a lead comes in"},
+  'Inconsistent branding':{finding:"your branding is inconsistent across your site, Google, and social, which dilutes trust",fix:"We lock in one clear, professional brand across everything"},
+  'No email / follow-up':{finding:"there's no follow-up system, so warm leads quietly go cold",fix:"We build automated email + text follow-up that nurtures leads until they're ready to buy"}
+};
+function orderedIssues(c){ return (c.issues||[]).slice().sort((a,b)=>DIGITAL_GAPS.indexOf(a)-DIGITAL_GAPS.indexOf(b)); }
+function completeness(c){
+  const keys=['business','industry','city','name','email','phone','website'];
+  const akeys=['years_in_business','team_size','monthly_revenue','owner_hours_week','owner_time_focus','ideal_customer','avg_customer_value','main_offer','leads_per_month','close_rate_pct','timeline','budget_readiness','pain_weight','commitment'];
+  let have=0,total=keys.length+akeys.length+2;
+  keys.forEach(k=>{ if(c[k]) have++; });
+  akeys.forEach(k=>{ if(A(c,k)!=='') have++; });
+  if(allPains(c).length) have++; if(c.log&&c.log.length) have++;
+  return Math.min(100,Math.round(have/total*100));
+}
+function computeAssessment(c){ return { priority:leadPriority(c), revenue:revenueAtRisk(c), completeness:completeness(c), services:servicesToPitch(c), issues:issuesInfo(c) }; }
+function money$(m){ if(!m) return '—'; const f=n=>'$'+Math.round(n).toLocaleString(); return f(m.low)+'–'+f(m.high); }
+function moneyMid(m){ return m?(m.low+m.high)/2:0; }
+function nextStep(c,a){
+  if(!c.email && a.priority.score>=45) return 'Get their email — you need it to send the analysis.';
+  if(a.priority.score>=70) return 'Call now — they are ready to move. Book the strategy call.';
+  if(A(c,'budget_readiness')==='Yes — ready now') return 'Send a proposal — they told you they are ready to invest.';
+  if(a.priority.score>=45) return 'Nurture — send the analysis email and follow up in a few days.';
+  if((c.log||[]).length===0) return 'Run the audit and make first contact to qualify them.';
+  return 'Long game — keep warm, revisit when timing improves.';
+}
+
+// ══════════════ NAV / RENDER ══════════════
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nv').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+id); if(pg) pg.classList.add('active');
+  const nv=document.getElementById('nv-'+id); if(nv) nv.classList.add('active');
+  document.getElementById('fab').style.display=(id==='dashboard'||id==='leads')?'flex':'none';
+  if(id==='dashboard') renderDashboard();
+  if(id==='leads') renderLeads();
+  if(id==='audit'&&currentAuditContactId==null){ document.getElementById('audit-for').textContent='Full digital presence audit'; postAuditPrefill(auditSelfInfo()); }
+  if(id==='settings') renderSettings();
+}
+function renderAll(){ renderDashboard(); renderLeads(); }
+function ring(pct,color,size){ size=size||46; const sw=size>=60?3.5:3; const r=(size-sw*2)/2,c=2*Math.PI*r,off=c*(1-pct/100); const gid='g'+Math.round(pct*100+size);
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" style="transform:rotate(-90deg);overflow:visible"><circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="'+sw+'"/><circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" style="filter:drop-shadow(0 0 4px '+color+')"/><text x="50%" y="50%" transform="rotate(90 '+size/2+' '+size/2+')" text-anchor="middle" dy="0.35em" fill="var(--text)" font-size="'+(size*0.3)+'" font-weight="300" letter-spacing="-0.02em" font-family="Inter">'+Math.round(pct)+'</text></svg>'; }
+function donut(segs,size,cTop,cBot){ size=size||150; const sw=Math.round(size*0.085),r=(size-sw-4)/2,cx=size/2,cy=size/2,C=2*Math.PI*r; const total=segs.reduce((s,x)=>s+x.value,0)||1; let off=0,arcs=''; const gap=total>1?C*0.008:0;
+  segs.forEach(s=>{ if(s.value<=0)return; const len=Math.max(0,s.value/total*C-gap); arcs+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+s.color+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+len+' '+(C-len)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 '+cx+' '+cy+')" style="filter:drop-shadow(0 0 3px '+s.color+'88)"/>'; off+=len+gap; });
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" style="overflow:visible"><circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="'+sw+'"/>'+arcs+(cTop!=null?'<text x="'+cx+'" y="'+(cy-1)+'" text-anchor="middle" fill="var(--text)" font-size="'+(size*0.24)+'" font-weight="300" letter-spacing="-0.03em" font-family="Inter">'+cTop+'</text>':'')+(cBot!=null?'<text x="'+cx+'" y="'+(cy+size*0.15)+'" text-anchor="middle" fill="var(--text3)" font-size="'+(size*0.068)+'" font-weight="600" font-family="Inter" letter-spacing="1.5">'+cBot+'</text>':'')+'</svg>'; }
+function legend(items){ return '<div style="display:flex;flex-direction:column;gap:6px">'+items.filter(i=>i.value>0).map(i=>'<div style="display:flex;align-items:center;gap:7px;font-size:11px"><span style="width:9px;height:9px;border-radius:2px;background:'+i.color+';flex-shrink:0"></span><span style="color:var(--text2);flex:1">'+i.label+'</span><span style="color:var(--text);font-weight:700">'+i.value+'</span></div>').join('')+'</div>'; }
+function barChart(items){ const max=Math.max(1,...items.map(i=>i.value)); return items.map(i=>'<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:var(--text2)">'+i.label+'</span><span style="color:var(--text);font-weight:700">'+i.display+'</span></div><div class="meter"><i style="width:'+(i.value/max*100)+'%;background:linear-gradient(90deg,var(--acc2),var(--acc))"></i></div></div>').join(''); }
+
+// dashboard
+function renderDashboard(){
+  const leads=allLeads.filter(c=>c.stage!=='lost'); const active=leads.filter(c=>!CLIENT_STAGES.includes(c.stage));
+  const totalRisk=active.reduce((s,c)=>s+moneyMid(revenueAtRisk(c)),0);
+  const clients=allLeads.filter(c=>CLIENT_STAGES.includes(c.stage)).length;
+  const pipeline=leads.filter(c=>['booked','proposal'].includes(c.stage)).reduce((s,c)=>s+moneyMid(revenueAtRisk(c)),0);
+  document.getElementById('dash-greeting').textContent='Welcome back, '+getMe()+' · '+allLeads.length+' leads tracked';
+  const f=n=>'$'+(Math.round(n)>=1000?(Math.round(n/100)/10)+'k':Math.round(n));
+  const buckets={hot:0,warm:0,cool:0}; active.forEach(c=>{ const s=leadPriority(c).score; if(s>=70)buckets.hot++; else if(s>=45)buckets.warm++; else buckets.cool++; });
+  document.getElementById('dash-stats').innerHTML=
+    stat('🔥 Hot leads',buckets.hot,'#ff6a1f')+stat('Revenue at risk',f(totalRisk),'var(--acc)')+stat('In pipeline',f(pipeline),'#6b8afd')+stat('Active clients',clients,'#22c55e');
+  const priSegs=[{label:'🔥 Hot',color:'#ff6a1f',value:buckets.hot},{label:'🌤 Warm',color:'#e8a13a',value:buckets.warm},{label:'❄ Cool',color:'#6b8afd',value:buckets.cool}];
+  const fun=STAGES.filter(s=>s.k!=='lost'&&!CLIENT_STAGES.includes(s.k)); const stageSegs=fun.map(s=>({label:s.label,color:s.color,value:allLeads.filter(c=>c.stage===s.k).length}));
+  document.getElementById('dash-charts').innerHTML=
+    '<div class="card"><div class="sec" style="margin:0 0 12px">Lead priority</div><div style="display:flex;align-items:center;gap:16px"><div>'+donut(priSegs,130,active.length,'ACTIVE')+'</div><div style="flex:1">'+legend(priSegs)+'</div></div></div>'
+   +'<div class="card"><div class="sec" style="margin:0 0 12px">Pipeline stage</div><div style="display:flex;align-items:center;gap:16px"><div>'+donut(stageSegs,130,active.length,'ACTIVE')+'</div><div style="flex:1">'+legend(stageSegs)+'</div></div></div>';
+  const byInd={}; active.forEach(c=>{ const k=c.industry||'Other'; byInd[k]=(byInd[k]||0)+moneyMid(revenueAtRisk(c)); });
+  const items=Object.keys(byInd).map(k=>({label:k.split(' /')[0],value:byInd[k],display:'$'+Math.round(byInd[k]).toLocaleString()})).sort((a,b)=>b.value-a.value).slice(0,6);
+  document.getElementById('dash-industry').innerHTML=items.length?'<div class="card"><div class="sec" style="margin:0 0 12px">Revenue at risk by industry</div>'+barChart(items)+'</div>':'';
+}
+function stat(k,v,glow){ return '<div class="stat"><div class="glow" style="background:'+(glow||'#fff')+'"></div><div class="k">'+k+'</div><div class="v" style="color:'+(glow&&glow.indexOf('#')===0?glow:'var(--text)')+'">'+v+'</div></div>'; }
+function daysSince(d){ if(!d) return 999; return Math.floor((Date.now()-new Date(d))/86400000); }
+function attentionLeads(){ const today=new Date().toISOString().split('T')[0];
+  return allLeads.filter(c=>{ if(CLIENT_STAGES.includes(c.stage)||c.stage==='lost') return false; if(c.status==='paused') return false; if(c.next_action_date) return c.next_action_date<=today; return daysSince(c.last_contact)>7; }).sort((a,b)=>leadPriority(b).score-leadPriority(a).score); }
+
+// leads
+function setView(v){ leadView=v; document.getElementById('vt-list').classList.toggle('on',v==='list'); document.getElementById('vt-board').classList.toggle('on',v==='board'); document.getElementById('leads-list').style.display=v==='list'?'block':'none'; document.getElementById('leads-board').style.display=v==='board'?'block':'none'; renderLeads(); }
+function fillIndustryFilter(){ const sel=document.getElementById('industry-filter'); if(!sel) return; const inds=Array.from(new Set(allLeads.map(c=>c.industry).filter(Boolean))).sort(); const cur=sel.value||'all'; sel.innerHTML='<option value="all">All industries</option>'+inds.map(i=>'<option value="'+i.replace(/"/g,'&quot;')+'">'+i+'</option>').join(''); sel.value=cur; }
+function renderStageChips(){ const el=document.getElementById('stage-chips'); el.innerHTML='<div class="chip'+(currentStageFilter==='all'?' active':'')+'" onclick="setStage(\'all\')">All ('+allLeads.length+')</div>'+STAGES.map(s=>{ const n=allLeads.filter(c=>c.stage===s.k).length; return '<div class="chip'+(currentStageFilter===s.k?' active':'')+'" onclick="setStage(\''+s.k+'\')">'+s.label+' ('+n+')</div>'; }).join(''); }
+function setStage(s){ currentStageFilter=s; renderStageChips(); renderLeads(); }
+function filteredLeads(){
+  const q=(document.getElementById('lead-search').value||'').toLowerCase(); const ind=document.getElementById('industry-filter').value; const sort=document.getElementById('sort-by').value;
+  let list=allLeads.slice();
+  if(currentStageFilter!=='all') list=list.filter(c=>c.stage===currentStageFilter);
+  if(ind&&ind!=='all') list=list.filter(c=>c.industry===ind);
+  if(q) list=list.filter(c=>((c.name||'')+' '+(c.business||'')+' '+(c.phone||'')+' '+(c.email||'')).toLowerCase().includes(q));
+  if(sort==='revenue') list.sort((a,b)=>moneyMid(revenueAtRisk(b))-moneyMid(revenueAtRisk(a)));
+  else if(sort==='recent') list.sort((a,b)=>new Date(b.updated_at||b.created_at||0)-new Date(a.updated_at||a.created_at||0));
+  else if(sort==='name') list.sort((a,b)=>((a.business||a.name||'')).localeCompare(b.business||b.name||''));
+  else list.sort((a,b)=>leadPriority(b).score-leadPriority(a).score);
+  return list;
+}
+function renderLeads(){
+  fillIndustryFilter(); renderStageChips();
+  const list=filteredLeads();
+  document.getElementById('leads-sub').textContent=list.length+' lead'+(list.length===1?'':'s')+' · sorted by priority';
+  if(leadView==='board'){ renderBoard(); return; }
+  document.getElementById('leads-list').innerHTML=list.length?list.map(c=>leadCardHTML(c,false)).join(''):'<div class="empty"><div class="ic">◈</div>No leads here. Tap + to add one.</div>';
+}
+function leadCardHTML(c,attn){
+  const a=computeAssessment(c); const st=STAGE_MAP[c.stage]||STAGE_MAP.new; const stat=c.status&&c.status!=='active'?STATUS[c.status]:null;
+  const last=c.last_contact?daysSince(c.last_contact)+'d ago':'Never contacted'; const pr=a.priority;
+  let h='<div class="lead'+(attn?' attn':'')+'" onclick="openProfile('+c.id+')"><div class="lead-top"><div class="lead-main">';
+  h+='<div class="lead-name">'+esc(c.business||c.name||'Unnamed')+'</div>'; if(c.name&&c.business) h+='<div class="lead-biz">'+esc(c.name)+'</div>';
+  h+='<div class="lead-meta"><span class="pill" style="background:'+pr.color+'22;color:'+pr.color+'">'+pr.emoji+' '+pr.bucket.split(' —')[0]+'</span>';
+  h+='<span class="pill" style="background:'+st.color+'22;color:'+st.color+'">'+st.label+'</span>';
+  if(stat) h+='<span class="pill" style="background:'+stat.color+'22;color:'+stat.color+'">'+stat.label+'</span>';
+  if(c.industry) h+='<span class="pill" style="background:#ffffff0d;color:var(--text2)">'+esc(c.industry.split(' /')[0])+'</span>';
+  h+=(a.revenue.atStandard?'<span class="money" style="color:var(--text3)">tap to assess →</span>':'<span class="money">'+money$(a.revenue)+'/mo</span>')+'</div></div>';
+  h+='<div class="ring-wrap">'+ring(pr.score,pr.color,46)+'<div class="ring-cap">Priority</div></div></div>';
+  h+='<div style="display:flex;align-items:center;gap:8px;margin-top:10px"><div style="flex:1"><div class="meter"><i style="width:'+a.completeness+'%;background:linear-gradient(90deg,var(--acc2),var(--acc))"></i></div></div><div style="font-size:9px;color:var(--text3);white-space:nowrap">'+a.completeness+'% complete · '+last+'</div></div>';
+  const acts=[]; if(c.phone){ acts.push('<a class="la call" href="'+callHref(c.phone)+'"'+callAttr()+' onclick="event.stopPropagation()">📞 Call</a>'); acts.push('<a class="la text" href="javascript:void(0)" onclick="event.stopPropagation();openText('+c.id+')">💬 Text</a>'); } if(c.email) acts.push('<a class="la email" href="'+gmailUrl(c.email)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">✉ Email</a>');
+  if(acts.length) h+='<div class="lead-actions">'+acts.join('')+'</div>';
+  h+='</div>'; return h;
+}
+// kanban board
+function renderBoard(){
+  const list=filteredLeads(); const el=document.getElementById('leads-board');
+  const cols=STAGES.filter(s=>currentStageFilter==='all'||s.k===currentStageFilter);
+  el.innerHTML='<div class="board">'+cols.map(s=>{
+    const items=list.filter(c=>c.stage===s.k);
+    return '<div class="col" data-stage="'+s.k+'" ondragover="event.preventDefault();this.classList.add(\'drop\')" ondragleave="this.classList.remove(\'drop\')" ondrop="dropLead(event,\''+s.k+'\')">'
+      +'<div class="col-h"><span style="color:'+s.color+'">'+s.label+'</span><span class="cnt">'+items.length+'</span></div>'
+      +items.map(c=>{ const a=computeAssessment(c); return '<div class="kc" draggable="true" ondragstart="dragLead(event,'+c.id+')" ondragend="this.classList.remove(\'drag\')" onclick="openProfile('+c.id+')"><div class="kc-name">'+esc(c.business||c.name||'Unnamed')+'</div><div class="kc-sub">'+a.priority.emoji+' '+a.priority.score+' · <span style="color:var(--teal)">'+(a.revenue.atStandard?'assess →':money$(a.revenue))+'</span></div></div>'; }).join('')
+      +(items.length?'':'<div style="font-size:11px;color:var(--text3);text-align:center;padding:14px 0">Drop here</div>')
+      +'</div>';
+  }).join('')+'</div>';
+}
+let _dragId=null;
+function dragLead(e,id){ _dragId=id; e.dataTransfer.effectAllowed='move'; e.target.classList.add('drag'); }
+function dropLead(e,stage){ e.preventDefault(); document.querySelectorAll('.col').forEach(c=>c.classList.remove('drop')); if(_dragId==null) return; const c=allLeads.find(x=>x.id===_dragId); if(c&&c.stage!==stage){ c.stage=stage; saveLead_DB(c); renderBoard(); renderDashboard(); toast('Moved to '+STAGE_MAP[stage].label); } _dragId=null; }
+
+// ══════════════ PROFILE ══════════════
+function openProfile(id){ const c=allLeads.find(x=>x.id===id); if(!c) return; currentProfileId=id; document.getElementById('profile-body').innerHTML=renderProfile(c); openModal('profile-modal'); document.getElementById('profile-modal').querySelector('.modal').scrollTop=0; }
+function refreshProfile(){ if(currentProfileId!=null){ const c=allLeads.find(x=>x.id===currentProfileId); if(c) document.getElementById('profile-body').innerHTML=renderProfile(c); } }
+function miniTile(label,value,sub,color){ return '<div style="background:rgba(255,255,255,0.025);border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 14px"><div style="font-size:9.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:6px">'+label+'</div><div style="font-weight:300;font-size:24px;letter-spacing:-0.03em;line-height:1;color:'+(color||'var(--text)')+'">'+value+'</div>'+(sub?'<div style="font-size:10px;color:var(--text3);margin-top:4px">'+sub+'</div>':'')+'</div>'; }
+function calcBreakdown(c){
+  const rev=revenueAtRisk(c); const g=growthOpportunity(c); const inp=rev.inputs; const $=n=>'$'+Math.round(n).toLocaleString();
+  const tierColor=rev.source==='Verified'?'var(--teal)':rev.source==='Partial data'?'var(--amber)':'var(--text3)';
+  const tag=real=>real?'<span style="color:var(--teal);font-weight:600">their #</span>':'<span style="color:var(--text3)">'+(c.industry?c.industry.split(' /')[0]:'industry')+' avg</span>';
+  const indName=c.industry?c.industry.split(' /')[0]:'industry';
+  let h='<div class="grp-body" style="padding:14px 16px">';
+  // model explanation
+  h+='<div style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:12px">We start by assuming they hit the <b style="color:var(--text)">'+indName+' standard</b> on everything we can\'t see. The <b style="color:var(--text)">digital gaps you observed</b> are what pull them below it — that\'s the risk below. Each real number you get on the call replaces an assumption and makes it exact.</div>';
+  // confidence banner
+  h+='<div style="background:'+tierColor+'14;border:1px solid '+tierColor+'33;border-radius:10px;padding:10px 12px;margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:'+tierColor+'">Data confidence: '+rev.source+'</div><div style="font-size:11px;color:var(--text2);line-height:1.5;margin-top:3px">'+(rev.realCount===0?'Estimated from '+((c.issues||[]).length)+' observed gaps + verified '+indName+' benchmarks. Get their real numbers on the call to lock it in.':rev.realCount+' of 6 of their real numbers captured; the rest use '+indName+' benchmarks. A few more and this hits Verified.')+'</div></div>';
+  if(rev.atStandard){ h+='<div style="font-size:12px;color:var(--teal);line-height:1.6;margin-bottom:6px"><b>No revenue leaks found</b> — with the gaps checked, they\'re at the '+indName+' standard. The opportunity here is growth (below).</div>'; }
+  else { // inputs, each tagged real vs benchmark
+    h+='<div style="font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:12px">Using ~<b style="color:var(--text)">'+inp.L+' leads/mo</b> ('+tag(rev.real.L)+'), a <b style="color:var(--text)">'+Math.round(inp.cUse*100)+'% close rate</b> ('+tag(rev.real.c)+'), and <b style="color:var(--text)">$'+Math.round(inp.V).toLocaleString()+'</b>/customer ('+tag(rev.real.V)+'):</div>'; }
+  rev.components.forEach(x=>{ h+='<div style="margin-bottom:10px"><div class="kv" style="padding:0 0 3px"><span style="color:var(--text);font-weight:600">'+x.label+'</span><span style="color:var(--acc);font-weight:700">'+$(x.amount)+'/mo</span></div><div style="font-size:11px;color:var(--text3);line-height:1.5">'+x.explain+'</div></div>'; });
+  h+='<div class="kv" style="margin-top:6px;border-top:1px solid var(--line2);padding-top:8px"><span style="font-weight:700">Total leaking now</span><span style="color:var(--acc);font-weight:800">'+money$(rev)+'/mo</span></div>';
+  if(g.components.length){ h+='<div style="font-size:11px;color:var(--text2);line-height:1.6;margin:16px 0 10px">On top of plugging leaks, fixing how they get found could capture <b style="color:var(--teal)">~'+g.leadsUnlocked+' new leads/mo</b> ('+g.upliftPct+'% more) — new business they don\'t get today:</div>';
+    g.components.forEach(x=>{ h+='<div style="margin-bottom:10px"><div class="kv" style="padding:0 0 3px"><span style="color:var(--text);font-weight:600">'+x.label+'</span><span style="color:var(--teal);font-weight:700">'+$(x.amount)+'/mo</span></div><div style="font-size:11px;color:var(--text3);line-height:1.5">'+x.explain+'</div></div>'; });
+    h+='<div class="kv" style="margin-top:6px;border-top:1px solid var(--line2);padding-top:8px"><span style="font-weight:700">Growth upside</span><span style="color:var(--teal);font-weight:800">'+money$(g)+'/mo</span></div>'; }
+  h+='<div class="kv" style="margin-top:10px"><span style="font-weight:800;font-size:13px">Total monthly opportunity</span><span style="font-weight:800;font-size:13px;color:var(--text)">'+'$'+Math.round(rev.low+g.low).toLocaleString()+'–$'+Math.round(rev.high+g.high).toLocaleString()+'</span></div>';
+  // PRIORITY breakdown
+  const parts=priorityParts(c); const pr=leadPriority(c);
+  h+='<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line2)"><div style="font-size:12px;font-weight:700;margin-bottom:4px">How the priority score works</div><div style="font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:11px">Priority = how <b>ready they are to buy</b> (not how much they need us). Four answers from the call add up to 100:</div>';
+  parts.forEach(p=>{ h+='<div style="margin-bottom:9px"><div class="kv" style="padding:0 0 3px"><span style="color:var(--text);font-weight:600">'+p.label+' <span style="color:var(--text3);font-weight:400">· '+esc(p.val)+'</span></span><span style="color:'+pr.color+';font-weight:700">'+p.pts+'/'+p.max+'</span></div><div class="meter"><i style="width:'+(p.pts/p.max*100)+'%;background:'+pr.color+'"></i></div></div>'; });
+  h+='<div class="kv" style="margin-top:6px;border-top:1px solid var(--line2);padding-top:8px"><span style="font-weight:700">Priority score</span><span style="color:'+pr.color+';font-weight:800">'+pr.emoji+' '+pr.score+'/100 · '+pr.bucket+'</span></div></div>';
+  h+='</div>';
+  return h;
+}
+function renderProfile(c){
+  const a=computeAssessment(c); const st=STAGE_MAP[c.stage]||STAGE_MAP.new; const pr=a.priority; const rev=revenueAtRisk(c); const g=growthOpportunity(c);
+  let h='<div class="handle"></div>';
+  // header
+  h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="flex:1;min-width:0"><div class="bebas" style="font-size:26px;line-height:1.05">'+esc(c.business||c.name||'Unnamed')+'</div>'+(c.name&&c.business?'<div style="font-size:13px;color:var(--text2);margin-top:2px">'+esc(c.name)+'</div>':'')+'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"><span class="pill" style="background:'+st.color+'22;color:'+st.color+'">'+st.label+'</span>'+((c.status&&c.status!=='active')?'<span class="pill" style="background:'+STATUS[c.status].color+'22;color:'+STATUS[c.status].color+'">'+STATUS[c.status].label+'</span>':'')+(c.industry?'<span class="pill" style="background:#ffffff0d;color:var(--text2)">'+esc(c.industry.split(' /')[0])+'</span>':'')+'</div></div><div style="text-align:center">'+ring(pr.score,pr.color,64)+'<div class="ring-cap">Priority</div></div></div>';
+  // QUICK ACTIONS
+  h+='<div style="display:flex;gap:7px;margin:16px 0 8px">'; if(c.phone){ h+='<a class="la call" href="'+callHref(c.phone)+'"'+callAttr()+'>📞 Call</a><a class="la text" href="javascript:void(0)" onclick="openText('+c.id+')">💬 Text</a>'; } if(c.email) h+='<a class="la email" href="'+gmailUrl(c.email)+'" target="_blank" rel="noopener">✉ Email</a>'; if(!c.phone&&!c.email) h+='<div style="flex:1;font-size:12px;color:var(--text3);text-align:center;padding:9px">No phone or email yet — add one to reach out.</div>'; h+='</div>';
+  h+='<div style="display:flex;gap:7px;margin-bottom:16px"><button class="btn btn-burn btn-sm" style="flex:1" onclick="openLog('+c.id+')">＋ Log</button><button class="btn btn-ghost btn-sm" style="flex:1" onclick="openEditLead('+c.id+')">✎ Assess</button><button class="btn btn-dark btn-sm" style="flex:1" onclick="openEmail('+c.id+')">📧 Email analysis</button></div>';
+  // AT-A-GLANCE DASHBOARD
+  h+='<div class="sec" style="margin-top:6px">At a glance</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">';
+  h+=miniTile('Priority',pr.emoji+' '+pr.score,pr.bucket.split(' —')[0],pr.color);
+  h+=miniTile('Revenue at risk',rev.atStandard?'On standard':money$(rev),rev.atStandard?'no leaks found':'/mo · '+rev.source,rev.atStandard?'var(--teal)':'var(--acc)');
+  h+=miniTile('Growth upside',g.high>0?money$(g):'—',g.high>0?'/mo new business':'no visibility gaps','var(--teal)');
+  h+=miniTile('Intel complete',a.completeness+'%',a.issues.count+' issues found','var(--text)');
+  h+='</div>';
+  h+='<div style="margin:10px 2px 0"><div class="meter"><i style="width:'+a.completeness+'%;background:linear-gradient(90deg,var(--acc2),var(--acc))"></i></div><div style="font-size:10px;color:var(--text3);margin-top:5px">Assessment completeness — the more you log, the sharper these numbers get.</div></div>';
+  // HOW THE NUMBERS WORK
+  h+='<details class="grp" style="margin-top:14px"><summary><span>📊 How these numbers are calculated</span></summary>'+calcBreakdown(c)+'</details>';
+  // NEXT STEP
+  h+='<div class="sec">✅ Action items</div><div class="action-item"><div class="n">→</div><div><div style="font-weight:700;font-size:13px">Next step</div><div style="font-size:12.5px;color:var(--text2);margin-top:2px">'+nextStep(c,a)+'</div></div></div>';
+  a.services.slice(0,4).forEach((r,i)=>{ h+='<div class="action-item"><div class="n">'+(i+1)+'</div><div><div style="font-weight:700;font-size:13px">Pitch: '+r.service+(i===0?' <span class="pill" style="background:var(--acc);color:#fff">lead with this</span>':'')+'</div><div style="font-size:12px;color:var(--text2);margin-top:2px">'+r.pitch+'</div><div style="font-size:10px;color:var(--text3);margin-top:4px">Because: '+r.because.slice(0,3).map(esc).join(', ')+'</div></div></div>'; });
+  // audit
+  if(c.audit){ h+='<div class="sec">◉ Audit · '+(c.audit.date||'')+'</div><div class="card">'+(c.audit.emails&&c.audit.emails.analysis?'<button class="btn btn-burn btn-sm btn-block" onclick="copyAuditEmail('+c.id+')">📋 Copy analysis email</button>':'<div style="font-size:12px;color:var(--text3)">Audit run — folded into the numbers above.</div>')+'</div>'; }
+  // readiness bars
+  const pw=num(A(c,'pain_weight')),cm=num(A(c,'commitment'));
+  if(A(c,'timeline')||A(c,'budget_readiness')||pw||cm){
+    h+='<div class="sec">Qualification</div><div class="card">';
+    if(A(c,'timeline')) h+='<div class="kv"><span>Timeline</span><span>'+esc(A(c,'timeline'))+'</span></div>';
+    if(A(c,'budget_readiness')) h+='<div class="kv"><span>Budget ready</span><span>'+esc(A(c,'budget_readiness'))+'</span></div>';
+    if(pw) h+='<div style="margin-top:8px"><div class="kv" style="padding-bottom:3px"><span>Pain weight</span><span>'+pw+'/10</span></div><div class="meter"><i style="width:'+(pw*10)+'%;background:var(--rose)"></i></div></div>';
+    if(cm) h+='<div style="margin-top:8px"><div class="kv" style="padding-bottom:3px"><span>Commitment</span><span>'+cm+'/10</span></div><div class="meter"><i style="width:'+(cm*10)+'%;background:var(--teal)"></i></div></div>';
+    if(A(c,'cost_of_inaction')) h+='<div style="font-size:12px;color:var(--text2);margin-top:10px"><b style="color:var(--text)">Cost of inaction:</b> '+esc(A(c,'cost_of_inaction'))+'</div>';
+    h+='</div>';
+  }
+  // pains grouped
+  const anyPain=allPains(c).length;
+  if(anyPain){ h+='<div class="sec">Pain points ('+anyPain+')</div><div class="card">';
+    Object.keys(PAINS).forEach(k=>{ const arr=A(c,k)||[]; if(arr.length) h+='<div style="margin-bottom:9px"><div style="font-size:11px;color:var(--text3);margin-bottom:5px">'+PAINS[k].label+'</div><div style="display:flex;flex-wrap:wrap;gap:5px">'+arr.map(p=>'<span class="pill" style="background:rgba(245,85,106,0.1);color:var(--rose)">'+esc(p)+'</span>').join('')+'</div></div>'; });
+    if(A(c,'top_frustration')) h+='<div style="font-size:12.5px;color:var(--text);margin-top:6px;font-style:italic">“'+esc(A(c,'top_frustration'))+'”</div>';
+    h+='</div>'; }
+  // business snapshot
+  const snap=[]; if(A(c,'years_in_business'))snap.push(['Years',A(c,'years_in_business')]); if(A(c,'team_size'))snap.push(['Team',A(c,'team_size')]); if(A(c,'monthly_revenue'))snap.push(['Revenue',A(c,'monthly_revenue')]); if(A(c,'owner_hours_week'))snap.push(['Owner hrs/wk',A(c,'owner_hours_week')]); if(A(c,'owner_time_focus'))snap.push(['Owner focus',A(c,'owner_time_focus')]); if(A(c,'main_offer'))snap.push(['Main offer',A(c,'main_offer')]); if(A(c,'avg_customer_value'))snap.push(['Avg value','$'+A(c,'avg_customer_value')]); if((A(c,'how_customers_find')||[]).length)snap.push(['Finds them',(A(c,'how_customers_find')||[]).join(', ')]);
+  if(snap.length){ h+='<div class="sec">Business snapshot</div><div class="card">'+snap.map(d=>'<div class="kv"><span>'+d[0]+'</span><span>'+esc(d[1])+'</span></div>').join('')+'</div>'; }
+  // their numbers
+  const nums=[]; [['leads_per_month','Leads/mo'],['close_rate_pct','Close rate %'],['value_per_customer','Value/customer'],['slow_followup_pct','Slow follow-up %'],['no_shows_month','No-shows/mo'],['repeat_rate_pct','Repeat %']].forEach(([k,l])=>{ if(A(c,k)!=='') nums.push([l,A(c,k)]); });
+  if(nums.length){ h+='<div class="sec">Their numbers</div><div class="card">'+nums.map(d=>'<div class="kv"><span>'+d[0]+'</span><span>'+esc(d[1])+'</span></div>').join('')+'</div>'; }
+  // contact details
+  const det=[]; if(c.phone) det.push(['Phone','<a href="tel:'+c.phone+'" style="color:var(--acc)">'+esc(c.phone)+'</a>']); if(c.email) det.push(['Email','<a href="mailto:'+c.email+'" style="color:var(--acc)">'+esc(c.email)+'</a>']); if(c.website) det.push(['Website','<a href="'+normUrl(c.website)+'" target="_blank" rel="noopener" style="color:var(--acc)">'+esc(c.website)+'</a>']); if(c.instagram) det.push(['Instagram','<a href="'+igUrl(c.instagram)+'" target="_blank" rel="noopener" style="color:var(--acc)">'+esc(c.instagram)+'</a>']); if(c.facebook) det.push(['Facebook','<a href="'+fbUrl(c.facebook)+'" target="_blank" rel="noopener" style="color:var(--acc)">'+esc(c.facebook)+'</a>']); if(c.source) det.push(['Source',esc(c.source)]);
+  if(det.length){ h+='<div class="sec">Contact</div><div class="card">'+det.map(d=>'<div class="kv"><span>'+d[0]+'</span><span>'+d[1]+'</span></div>').join('')+'</div>'; }
+  if(c.issues&&c.issues.length){ h+='<div class="sec">Observed digital gaps</div><div style="display:flex;flex-wrap:wrap;gap:5px">'+c.issues.map(i=>'<span class="pill" style="background:rgba(245,85,106,0.1);color:var(--rose)">⚠ '+esc(i)+'</span>').join('')+'</div>'; }
+  if(c.notes) h+='<div class="sec">Notes</div><div class="card" style="font-size:13px;line-height:1.6">'+esc(c.notes)+'</div>';
+  h+='<div class="sec">Activity ('+((c.log&&c.log.length)||0)+')</div>';
+  if(c.log&&c.log.length){ h+=c.log.map((l,idx)=>{ const col=l.type==='Call'?'#2dd4bf':l.type==='Email'?'#6b8afd':l.type==='Meeting'?'#8f7bff':l.type==='Text'?'#e8a13a':'#6b7280'; return '<div class="tl-item"><div class="tl-dot" style="background:'+col+'"></div><div class="tl-body"><div class="tl-meta">'+l.date+' · '+esc(l.type||'Note')+(l.outcome?' · '+esc(l.outcome):'')+(l.by?' · '+esc(l.by):'')+'</div><div class="tl-txt">'+esc(l.notes||'')+'</div></div><button class="btn btn-danger btn-sm" style="padding:4px 8px;align-self:flex-start" onclick="deleteLog('+c.id+','+idx+')">✕</button></div>'; }).join(''); }
+  else h+='<div style="font-size:12px;color:var(--text3);padding:6px 0">No activity yet.</div>';
+  h+='<div style="display:flex;gap:6px;margin-top:18px"><button class="btn btn-ghost btn-sm" style="flex:1" onclick="openEditLead('+c.id+')">✎ Edit</button><button class="btn btn-danger btn-sm" style="flex:1" onclick="deleteLead('+c.id+')">🗑 Delete</button><button class="btn btn-dark btn-sm" style="flex:1" onclick="closeModal(\'profile-modal\')">Close</button></div>';
+  return h;
+}
+
+// ══════════════ ADD / EDIT ASSESSMENT FORM ══════════════
+function selField(id,label,opts,val,opt){ return '<div class="field"><label class="lbl">'+label+(opt?' <span class="opt">(optional)</span>':'')+'</label><select id="'+id+'"><option value="">—</option>'+opts.map(o=>'<option'+(o===val?' selected':'')+'>'+o+'</option>').join('')+'</select></div>'; }
+function txtField(id,label,val,ph,opt,type){ return '<div class="field"><label class="lbl">'+label+(opt?' <span class="opt">(optional)</span>':'')+'</label><input type="'+(type||'text')+'" id="'+id+'" value="'+esc(val||'').replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'"></div>'; }
+function taField(id,label,val,ph){ return '<div class="field"><label class="lbl">'+label+' <span class="opt">(optional)</span></label><textarea id="'+id+'" placeholder="'+(ph||'')+'">'+esc(val||'')+'</textarea></div>'; }
+function multiField(id,label,opts,sel){ sel=sel||[]; return '<div class="field"><label class="lbl">'+label+'</label><div class="chks">'+opts.map(o=>'<label class="chk'+(sel.indexOf(o)>=0?' on':'')+'"><input type="checkbox" class="'+id+'" value="'+o.replace(/"/g,'&quot;')+'"'+(sel.indexOf(o)>=0?' checked':'')+' onchange="this.closest(\'.chk\').classList.toggle(\'on\',this.checked)"><span>'+o+'</span></label>').join('')+'</div></div>'; }
+function sliderField(id,label,val){ val=val||5; return '<div class="field"><label class="lbl">'+label+'</label><div style="display:flex;align-items:center;gap:12px"><input type="range" min="1" max="10" value="'+val+'" id="'+id+'" style="flex:1" oninput="document.getElementById(\''+id+'-v\').textContent=this.value"><span class="slider-val" id="'+id+'-v">'+val+'</span></div></div>'; }
+function collectMulti(id){ return Array.from(document.querySelectorAll('.'+id)).filter(x=>x.checked).map(x=>x.value); }
+function val(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+
+function buildLeadForm(c){
+  c=c||{}; const as=c.assessment||{};
+  return ''
+  +'<details class="grp grp-lead" open><summary><span>🔎 Who they are <span class="tag">required</span></span></summary><div class="grp-body">'
+    +'<div class="field"><label class="lbl">Business name *</label><input type="text" id="lm-business" value="'+esc(c.business||'').replace(/"/g,'&quot;')+'" placeholder="Green Valley Landscaping"></div>'
+    +'<div class="field"><label class="lbl">Industry *</label><select id="lm-industry"><option value="">Select…</option>'+INDUSTRIES.map(i=>'<option'+(i===c.industry?' selected':'')+'>'+i+'</option>').join('')+'</select></div>'
+    +'<div class="row">'+txtField('lm-name',"Owner's name",c.name,'Dave',true)+txtField('lm-city','City / area',c.city,'St. Louis, MO',true)+'</div>'
+    +'<div class="row">'+txtField('lm-website','Website',c.website,'site.com',true)+txtField('lm-main_offer','Main offer / service',as.main_offer,'',true)+'</div>'
+  +'</div></details>'
+  +multiFieldGroup('Observed digital gaps (from the audit)','lm-issues',DIGITAL_GAPS,c.issues)
+  +'<details class="grp"><summary><span>📞 Contact & business <span class="tag">on the call</span></span></summary><div class="grp-body">'
+    +'<div class="row">'+txtField('lm-email',"Owner's email",c.email,'dave@…',true,'email')+txtField('lm-phone','Phone',c.phone,'314-555-0100',true,'tel')+'</div>'
+    +'<div class="row">'+txtField('lm-instagram','Instagram',c.instagram,'@handle',true)+txtField('lm-facebook','Facebook',c.facebook,'facebook.com/…',true)+'</div>'
+    +'<div class="row">'+selField('lm-years_in_business','Years in business',OPT.years,as.years_in_business,true)+selField('lm-team_size','Team size',OPT.team,as.team_size,true)+'</div>'
+    +selField('lm-monthly_revenue','Approx. monthly revenue',OPT.revenue,as.monthly_revenue,true)
+    +'<div class="row">'+selField('lm-owner_hours_week','Owner hrs/week in the business',OPT.hours,as.owner_hours_week,true)+'</div>'
+    +selField('lm-owner_time_focus','Where the owner spends most time',OPT.focus,as.owner_time_focus,true)
+    +txtField('lm-source','Where you found them',c.source,'Referral, cold, expo…',true)
+  +'</div></details>'
+  +'<details class="grp"><summary><span>📞 Market & economics <span class="tag">on the call</span></span></summary><div class="grp-body">'
+    +taField('lm-ideal_customer','Who is their ideal customer?',as.ideal_customer)
+    +'<div class="row">'+txtField('lm-avg_customer_value','Avg value of one customer/job ($)',as.avg_customer_value,'500',true,'number')+'</div>'
+    +multiField('lm-how_customers_find','How customers find them today',OPT.howfind,as.how_customers_find)
+  +'</div></details>'
+  +'<details class="grp"><summary><span>📞 Performance numbers <span class="tag">powers the money engine</span></span></summary><div class="grp-body">'
+    +'<div style="font-size:11px;color:var(--text3);margin-bottom:10px">All optional — the estimate still works from industry defaults.</div>'
+    +'<div class="row">'+txtField('lm-leads_per_month','New leads / month',as.leads_per_month,'40',true,'number')+txtField('lm-close_rate_pct','% that become customers',as.close_rate_pct,'30',true,'number')+'</div>'
+    +'<div class="row">'+txtField('lm-value_per_customer','Avg value per customer ($)',as.value_per_customer,'500',true,'number')+txtField('lm-slow_followup_pct','% with slow/no follow-up',as.slow_followup_pct,'30',true,'number')+'</div>'
+    +'<div class="row">'+txtField('lm-no_shows_month','No-shows / month',as.no_shows_month,'3',true,'number')+txtField('lm-repeat_rate_pct','% who return / repeat',as.repeat_rate_pct,'30',true,'number')+'</div>'
+  +'</div></details>'
+  +'<details class="grp"><summary><span>📞 Pain points <span class="tag">what to fix</span></span></summary><div class="grp-body">'
+    +Object.keys(PAINS).map(k=>multiField('lm-'+k,PAINS[k].label,PAINS[k].opts,as[k])).join('')
+    +taField('lm-top_frustration','#1 frustration, in their words',as.top_frustration)
+  +'</div></details>'
+  +'<details class="grp"><summary><span>📞 Qualification & readiness <span class="tag">scores the lead</span></span></summary><div class="grp-body">'
+    +selField('lm-timeline','How soon they want it fixed',OPT.timeline,as.timeline,true)
+    +selField('lm-budget_readiness','Ready to invest in fixing it',OPT.budget,as.budget_readiness,true)
+    +sliderField('lm-pain_weight','How much it weighs on them (1 fine – 10 losing sleep)',num(as.pain_weight)||5)
+    +sliderField('lm-commitment','How committed to doing the work (1–10)',num(as.commitment)||5)
+    +taField('lm-cost_of_inaction','What happens if nothing changes',as.cost_of_inaction)
+  +'</div></details>'
+  +'<details class="grp"><summary><span>Notes</span></summary><div class="grp-body">'+taField('lm-notes','Notes',c.notes)+'</div></details>';
+}
+const DIGITAL_GAPS=['No website','Weak / outdated website','Website not mobile-friendly','No lead capture (form/chat)','Not on Google (no profile)','Poor Google profile','Few / no reviews',"Doesn't respond to reviews",'Not running ads','No social media','Inactive social','Not ranking / no SEO','No online booking','Manual scheduling / no automation','Slow lead response','Inconsistent branding','No email / follow-up'];
+function multiFieldGroup(label,id,opts,sel){ sel=sel||[]; return '<div class="field"><label class="lbl">🔎 '+label+'</label><div class="chks">'+opts.map(o=>'<label class="chk'+(sel.indexOf(o)>=0?' on':'')+'"><input type="checkbox" class="'+id+'" value="'+o.replace(/"/g,'&quot;')+'"'+(sel.indexOf(o)>=0?' checked':'')+' onchange="this.closest(\'.chk\').classList.toggle(\'on\',this.checked);liveLeadPreview()"><span>'+o+'</span></label>').join('')+'</div></div>'; }
+
+function openAddLead(){ document.getElementById('lead-modal-title').textContent='New Lead'; document.getElementById('lm-id').value=''; document.getElementById('lm-form').innerHTML=buildLeadForm({}); document.getElementById('lm-preview').innerHTML=''; attachPreviewListeners(); openModal('lead-modal'); }
+function openEditLead(id){ const c=allLeads.find(x=>x.id===id); if(!c) return; document.getElementById('lead-modal-title').textContent='Edit / Assess'; document.getElementById('lm-id').value=id; document.getElementById('lm-form').innerHTML=buildLeadForm(c); attachPreviewListeners(); liveLeadPreview(); openModal('lead-modal'); }
+function attachPreviewListeners(){ ['lm-industry','lm-timeline','lm-budget_readiness','lm-pain_weight','lm-commitment','lm-leads_per_month','lm-close_rate_pct','lm-value_per_customer','lm-avg_customer_value'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',liveLeadPreview); }); }
+function readFormLead(base){ const c=Object.assign({},base||{}); const as=Object.assign({},base&&base.assessment?base.assessment:{});
+  c.business=val('lm-business'); c.name=val('lm-name'); c.industry=val('lm-industry'); c.city=val('lm-city'); c.website=val('lm-website'); c.email=val('lm-email'); c.phone=val('lm-phone'); c.instagram=val('lm-instagram'); c.facebook=val('lm-facebook'); c.source=val('lm-source'); c.notes=val('lm-notes'); c.issues=collectMulti('lm-issues');
+  ['main_offer','years_in_business','team_size','monthly_revenue','owner_hours_week','owner_time_focus','ideal_customer','avg_customer_value','leads_per_month','close_rate_pct','value_per_customer','slow_followup_pct','no_shows_month','repeat_rate_pct','top_frustration','timeline','budget_readiness','cost_of_inaction'].forEach(k=>{ as[k]=val('lm-'+k); });
+  ['pain_marketing','pain_sales','pain_operations','pain_strategy'].forEach(k=>{ as[k]=collectMulti('lm-'+k); });
+  as.how_customers_find=collectMulti('lm-how_customers_find');
+  const pw=document.getElementById('lm-pain_weight'); if(pw) as.pain_weight=pw.value; const cm=document.getElementById('lm-commitment'); if(cm) as.commitment=cm.value;
+  c.assessment=as; return c;
+}
+function liveLeadPreview(){ const c=readFormLead({}); const a=computeAssessment(c); const pr=a.priority;
+  document.getElementById('lm-preview').innerHTML='<div class="card" style="background:linear-gradient(135deg,var(--accglow),transparent);border-color:var(--acc2);margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-weight:700">Live assessment</div><div class="bebas" style="font-size:26px;color:var(--acc);line-height:1.1">'+money$(a.revenue)+'<span style="font-size:13px;color:var(--text2)">/mo</span></div><div style="font-size:11px;color:'+pr.color+';font-weight:700;margin-top:2px">'+pr.emoji+' '+pr.bucket+'</div></div><div style="text-align:center">'+ring(pr.score,pr.color,54)+'<div class="ring-cap">Priority</div></div></div>'+(a.services.length?'<div style="font-size:11px;color:var(--text2);margin-top:8px">Pitch: <b style="color:var(--text)">'+a.services.slice(0,3).map(s=>s.service).join(', ')+'</b></div>':'')+'</div>'; }
+function saveLead(){ const editId=document.getElementById('lm-id').value; const base=editId?allLeads.find(x=>x.id===parseInt(editId)):null; const c=readFormLead(base||{});
+  if(!c.business&&!c.name){ toast('Add a business name'); return; } if(!c.industry){ toast('Pick an industry'); return; }
+  if(!editId){ c.id=Date.now(); c.stage=(c.issues.length||allPains(c).length)?'assessed':'new'; c.status=c.status||'active'; c.log=c.log||[]; c.created_at=new Date().toISOString(); c.created_by=getMe(); }
+  saveLead_DB(c); closeModal('lead-modal'); renderAll(); toast(editId?'Assessment updated':'Lead added · '+money$(revenueAtRisk(c))+'/mo at risk'); if(editId){ if(currentProfileId===c.id) refreshProfile(); } else setTimeout(()=>openProfile(c.id),250); }
+
+// ══════════════ LOG ══════════════
+function openLog(id){ const c=allLeads.find(x=>x.id===id); if(!c) return; document.getElementById('log-id').value=id; document.getElementById('log-for').textContent=c.business||c.name||''; document.getElementById('log-type').value='Call'; document.getElementById('log-outcome').value=''; document.getElementById('log-notes').value=''; document.getElementById('log-next').value=''; document.getElementById('log-status').value=c.status||'active'; const ss=document.getElementById('log-stage'); ss.innerHTML='<option value="">Keep: '+((STAGE_MAP[c.stage]||STAGE_MAP.new).label)+'</option>'+STAGES.map(s=>'<option value="'+s.k+'">'+s.label+'</option>').join(''); openModal('log-modal'); }
+function saveLog(){ const id=parseInt(document.getElementById('log-id').value); const c=allLeads.find(x=>x.id===id); if(!c) return; if(!c.log) c.log=[]; const type=val('log-type'),outcome=val('log-outcome'),notes=val('log-notes'),stage=val('log-stage'),status=val('log-status'),next=val('log-next'); const today=new Date().toISOString().split('T')[0];
+  c.log.unshift({date:today,type:type,outcome:outcome,notes:notes,by:getMe(),logged:new Date().toISOString()}); c.last_contact=today; if(stage) c.stage=stage; c.status=status; if(next){ c.next_action_date=next; if(status==='active') c.status='callback'; }
+  saveLead_DB(c); closeModal('log-modal'); renderAll(); if(currentProfileId===id) refreshProfile(); toast('Logged'+(stage?' · moved to '+STAGE_MAP[stage].label:'')); }
+function deleteLog(id,idx){ const c=allLeads.find(x=>x.id===id); if(!c||!c.log) return; c.log.splice(idx,1); saveLead_DB(c); refreshProfile(); renderDashboard(); }
+
+// ══════════════ AUDIT ══════════════
+function auditSelfInfo(){ return {yourName:getMe(),yourEmail:'andrew@motionbymovements.com'}; }
+function auditPrefill(c){ const p=auditSelfInfo(); p.bizName=c.business||c.name||''; p.industry=crmIndustryToAuditKey(c.industry); p.ownerName=c.name||''; p.prospectEmail=c.email||''; p.city=c.city||''; p.gaps=leadGapKeys(c).concat(crmIssuesToGapKeys(c.issues)); return p; }
+function crmIssuesToGapKeys(issues){ const map={'No website':'no_site','Weak / outdated website':'old_site','Not on Google (no profile)':'no_gbp','Poor Google profile':'no_gbp','Few / no reviews':'few_reviews','Not running ads':'no_ads','No social media':'no_social','Inactive social':'no_social','Not ranking / no SEO':'weak_local','No online booking':'no_cta','Inconsistent branding':'inconsistent_brand'}; const o=[]; (issues||[]).forEach(i=>{ const g=map[i]; if(g&&o.indexOf(g)<0) o.push(g); }); return o; }
+function postAuditPrefill(payload){ const f=document.getElementById('audit-frame'); if(!f) return; let t=0; (function push(){ t++; try{ if(f.contentWindow) f.contentWindow.postMessage({type:'mbm-prefill',payload:payload},'*'); }catch(e){} if(t<4) setTimeout(push,350); })(); }
+function openAudit(id){ const c=allLeads.find(x=>x.id===id); if(!c) return; closeModal('profile-modal'); currentAuditContactId=id; lastAuditSig=''; goPage('audit'); document.getElementById('audit-for').textContent='For: '+(c.business||c.name); postAuditPrefill(auditPrefill(c)); }
+function openBlankAudit(){ currentAuditContactId=null; lastAuditSig=''; const f=document.getElementById('audit-frame'); if(f) f.src='mbm-audit.html'; document.getElementById('audit-for').textContent='Full digital presence audit'; setTimeout(()=>postAuditPrefill(auditSelfInfo()),500); }
+window.addEventListener('message',function(e){ if(e.origin&&e.origin!==window.location.origin) return; const rec=e.data; if(!rec||rec.type!=='mbm-audit') return; if(rec.event==='complete') captureAudit(rec); if(rec.event==='send') logAuditSend(rec); });
+function captureAudit(rec){ if(currentAuditContactId==null) return; const sig=(rec.business||'')+'|'+(rec.money&&rec.money.low)+'|'+(rec.issues?rec.issues.length:0); if(sig===lastAuditSig) return; lastAuditSig=sig; const c=allLeads.find(x=>x.id===currentAuditContactId); if(!c) return; c.audit={money:rec.money,issues:rec.issues||[],emails:rec.emails||{},date:new Date().toISOString().split('T')[0]}; if(c.stage==='new') c.stage='assessed'; saveLead_DB(c); renderAll(); refreshProfile(); toast('Audit saved · '+money$(rec.money)+'/mo'); }
+function logAuditSend(rec){ if(currentAuditContactId==null) return; const c=allLeads.find(x=>x.id===currentAuditContactId); if(!c) return; if(!c.log) c.log=[]; const today=new Date().toISOString().split('T')[0]; c.log.unshift({date:today,type:'Email',outcome:'Sent analysis',notes:'Sent MBM analysis email ('+money$(rec.money)+'/mo).',by:getMe(),logged:new Date().toISOString()}); c.last_contact=today; if(['new','assessed'].includes(c.stage)) c.stage='contacted'; saveLead_DB(c); renderAll(); refreshProfile(); toast('Outreach logged'); }
+function copyAuditEmail(id){ const c=allLeads.find(x=>x.id===id); if(!c||!c.audit||!c.audit.emails||!c.audit.emails.analysis) return; const em=c.audit.emails.analysis; const text='Subject: '+(em.subject||'')+'\n\n'+(em.body||''); const ok=()=>toast('Analysis email copied ✓'); if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok).catch(()=>{fallbackCopy(text);ok();}); else { fallbackCopy(text); ok(); } }
+function fallbackCopy(t){ try{ const ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);}catch(e){} }
+
+// ══════════════ ANALYSIS EMAIL (direct-response, from the assessment) ══════════════
+const FINDING_TXT={
+  'No website':"you don't have a real website, so anyone who Googles you finds nothing to trust",
+  'Weak / outdated website':"your website looks dated, which quietly costs you trust and booked jobs",
+  'Not on Google (no profile)':"you're not showing up on Google Maps — invisible to people searching for you right now",
+  'Poor Google profile':"your Google profile is thin, so you're ranking below competitors in local search",
+  'Few / no reviews':"you have very few reviews, so prospects pick the business with more social proof",
+  'Not running ads':"you're not running any ads, so you only get whoever happens to stumble onto you",
+  'No social media':"you have almost no social presence, so you look smaller and less established than you are",
+  'Inactive social':"your social pages have gone quiet, which reads as a struggling business to a prospect",
+  'Not ranking / no SEO':"you're not ranking in search, so competitors are capturing the demand before you",
+  'No online booking':"there's no easy way to book you, so ready-to-buy leads slip through the cracks",
+  'Inconsistent branding':"your branding is inconsistent, which dilutes trust and word-of-mouth",
+  'No email / follow-up':"there's no follow-up system, so warm leads quietly go cold",
+  'Not showing up on Google':"you're not showing up on Google when locals search, so you're invisible at the exact moment they're ready to buy",
+  'Inconsistent social media':"your social is inconsistent, which makes you look less established than you are",
+  'No paid ads running':"you're not running ads, so you have no reliable way to turn on more leads",
+  'Not enough leads':"you're not getting enough leads coming in — the pipeline is too dependent on luck",
+  'Brand looks unprofessional':"the brand doesn't look as professional as your actual work, and it's costing you",
+  "Leads don't convert":"leads come in but don't convert — the follow-up and sales process is leaking",
+  'No follow-up system':"there's no follow-up system, so warm leads go cold before they buy",
+  'No referral / review engine':"there's no system generating reviews and referrals, so your best growth channel is idle"
+};
+function plainFindings(c){
+  const out=[]; const seen=new Set();
+  (c.issues||[]).forEach(gap=>{ const t=FINDING_TXT[gap]; if(t&&!seen.has(t)){ seen.add(t); out.push(t); } });
+  allPains(c).forEach(p=>{ const t=FINDING_TXT[p]; if(t&&!seen.has(t)){ seen.add(t); out.push(t); } });
+  return out.slice(0,4);
+}
+function buildAnalysisEmail(c){
+  const rev=revenueAtRisk(c); const g=growthOpportunity(c);
+  const first=((c.name||'').split(' ')[0])||'there'; const biz=c.business||'your business';
+  const me=getMe(), phone=getPhone(), link=getBooking();
+  const $=n=>'$'+Math.round(n).toLocaleString(); const riskLine=$(rev.low)+'–'+$(rev.high);
+  const indPhrase=c.industry&&c.industry!=='Other / not sure'?c.industry.split(' /')[0]+' business':'business';
+  const hasRisk=rev.high>0;
+  const subject=hasRisk?first+', '+biz+' is leaving ~'+riskLine+'/mo on the table':first+', a few growth wins for '+biz;
+  let b=first+',\n\n';
+  if(hasRisk){
+    b+='I run Motion by Movements — we build turn-key growth infrastructure for business owners: the systems and setup that bring in more customers and revenue without you running yourself into the ground. Before reaching out, I put together a quick audit of '+biz+"'s online presence. Here's the straight version: based on how a "+indPhrase+' like yours typically runs — and the specific gaps I found — you\'re likely leaving about '+riskLine+'/month on the table right now'+(g.high>0?', with another '+money$(g)+'/month in new business you\'re not yet capturing':'')+'.\n\n';
+    const found=orderedIssues(c).filter(gp=>GAP_DETAIL[gp]);
+    if(found.length){
+      b+="Here's exactly what stood out, and how we'd fix each one:\n\n";
+      found.slice(0,6).forEach(gp=>{ const d=GAP_DETAIL[gp]; b+='• '+d.finding.charAt(0).toUpperCase()+d.finding.slice(1)+'.\n   '+d.fix+'.\n\n'; });
+    } else {
+      b+="Here's where it's going, and exactly how we'd fix each one:\n\n";
+      rev.components.slice(0,3).forEach(x=>{ b+='• '+x.issue+' — about '+$(x.amount)+'/mo.\n   '+x.fix+'\n\n'; });
+    }
+  } else {
+    b+='I run Motion by Movements — we build turn-key growth infrastructure for business owners: the systems and setup that bring in more customers and revenue. I took a look at '+biz+"'s online presence, and the good news is the fundamentals are solid — you're not bleeding customers. Where I do see room is growth:\n\n";
+    const gfound=orderedIssues(c).filter(gp=>GAP_DETAIL[gp]);
+    if(gfound.length){ gfound.slice(0,4).forEach(gp=>{ const d=GAP_DETAIL[gp]; b+='• '+d.finding.charAt(0).toUpperCase()+d.finding.slice(1)+'.\n   '+d.fix+'.\n\n'; }); }
+    else if(g.high>0){ b+='• You could be capturing roughly '+g.leadsUnlocked+' more leads/month ('+money$(g)+'/month in new business) with an optimized Google profile, local search, and targeted ads.\n\n'; }
+  }
+  b+="To be upfront: those figures come from real "+indPhrase+" benchmarks adjusted for the gaps I found — a starting point, not gospel. Two quick things would let me make them exact for you:\n";
+  b+='  1) Roughly how many new leads/inquiries do you get in a month?\n';
+  b+='  2) About what is one new customer worth to you?\n\n';
+  b+="If you're open to it, I'd love to grab 15 minutes to walk you through the full breakdown and the 2–3 fixes that would move the needle fastest. No pressure and no obligation — worst case you leave with a clear picture of where the money's going.\n\n";
+  if(link) b+='Here\'s my calendar — grab whatever works: '+link+'\n\n';
+  else b+='Just reply here or text me at '+phone+' and we\'ll find 15 minutes.\n\n';
+  b+='Talk soon,';
+  return {subject,body:b};
+}
+function openEmail(id){
+  const c=allLeads.find(x=>x.id===id); if(!c) return;
+  if(!getBooking()&&!getPhone()){ toast('Tip: add your booking link & phone in Settings'); }
+  const em=buildAnalysisEmail(c);
+  document.getElementById('email-id').value=id;
+  document.getElementById('email-for').textContent='To: '+(c.name?c.name+' · ':'')+(c.email||'no email on file');
+  document.getElementById('email-subject').value=em.subject;
+  document.getElementById('email-body').value=em.body;
+  openModal('email-modal');
+}
+function copyEmail(){ const s=document.getElementById('email-subject').value; const b=document.getElementById('email-body').value; const text='Subject: '+s+'\n\n'+b; const ok=()=>toast('Email copied ✓'); if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok).catch(()=>{fallbackCopy(text);ok();}); else { fallbackCopy(text); ok(); } logEmailSent(); }
+function sendEmail(){ const id=parseInt(document.getElementById('email-id').value); const c=allLeads.find(x=>x.id===id); const s=document.getElementById('email-subject').value; const b=document.getElementById('email-body').value; const to=c&&c.email?c.email:''; logEmailSent(); window.open(gmailUrl(to,s,b),'_blank'); }
+function logEmailSent(){ const id=parseInt(document.getElementById('email-id').value); const c=allLeads.find(x=>x.id===id); if(!c) return; if(!c.log) c.log=[]; const today=new Date().toISOString().split('T')[0]; if(c.log[0]&&c.log[0].notes==='Sent the analysis email.') return; c.log.unshift({date:today,type:'Email',outcome:'Sent analysis',notes:'Sent the analysis email.',by:getMe(),logged:new Date().toISOString()}); c.last_contact=today; if(['new','assessed'].includes(c.stage)) c.stage='contacted'; saveLead_DB(c); renderAll(); if(currentProfileId===c.id) refreshProfile(); }
+
+// ══════════════ CSV ══════════════
+function showImport(){ const el=document.getElementById('import-box'); el.style.display=el.style.display==='none'?'block':'none'; if(el.style.display==='block'){ const f=document.getElementById('csv-file'); if(f) f.value=''; } }
+function parseCSV(text){ const rows=[]; let row=[],cur='',q=false; for(let i=0;i<text.length;i++){ const ch=text[i]; if(q){ if(ch==='"'&&text[i+1]==='"'){cur+='"';i++;} else if(ch==='"'){q=false;} else cur+=ch; } else { if(ch==='"')q=true; else if(ch===','){row.push(cur);cur='';} else if(ch==='\r'){} else if(ch==='\n'){row.push(cur);rows.push(row);row=[];cur='';} else cur+=ch; } } row.push(cur); rows.push(row); return rows.map(r=>r.map(s=>s.trim())); }
+async function processCSV(input){ const file=input.files[0]; if(!file) return; const text=await file.text(); let rows=parseCSV(text).filter(r=>r.some(c=>c&&c.trim()!=='')); if(rows.length<2){ toast('Nothing to import'); return; }
+  const norm=s=>(s||'').toLowerCase().replace(/[^a-z]/g,''); const HINTS=['name','business','company','phone','email','website','industry','source','note','social']; let hr=0; for(let i=0;i<Math.min(rows.length,12);i++){ if(rows[i].filter(c=>HINTS.some(h=>norm(c).includes(h))).length>=2){hr=i;break;} }
+  const H=rows[hr].map(norm); const find=p=>H.findIndex(h=>p.some(x=>h.includes(x))); const nameIdx=H.findIndex(h=>h.includes('name')&&!h.includes('business')&&!h.includes('company')); const bizIdx=find(['business','company','biz','organization','org','dba']); const indIdx=find(['industry','category','type']); const phoneIdx=find(['phone','mobile','cell','tel']); const emailIdx=find(['email','mail']); const webIdx=find(['website','url','site','web']); const socialIdx=find(['social','instagram','facebook','handle']); const srcIdx=find(['source','referr','howfound']); const noteIdx=find(['note','comment','description']); const cityIdx=find(['city','area','location','town']);
+  const get=(c,i)=>(i>=0&&c[i]?c[i]:''); const first=s=>(s||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean)[0]||''; const isIG=u=>/instagram\.com|^@/i.test(u),isFB=u=>/facebook\.com|fb\.com/i.test(u); const pk=p=>(p||'').replace(/\D/g,'').slice(-10);
+  const leads=lsGet('leads')||[]; const newOnes=[]; let skipped=0; const seen=new Set(); leads.forEach(c=>{ if(c.phone&&pk(c.phone))seen.add('p:'+pk(c.phone)); if(c.email)seen.add('e:'+c.email.toLowerCase()); if(c.name&&c.business)seen.add('nb:'+(c.name+'|'+c.business).toLowerCase()); });
+  for(let i=hr+1;i<rows.length;i++){ const cols=rows[i]; const business=get(cols,bizIdx); let name=first(get(cols,nameIdx)); if(!name&&!business) continue; if(name) name=name.split(/\s+-\s+/)[0].trim(); if(!name) name=business; let website=get(cols,webIdx),ig='',fb=''; if(isIG(website)){ig=website;website='';} else if(isFB(website)){fb=website;website='';} const soc=get(cols,socialIdx); if(soc&&!ig&&isIG(soc))ig=soc; if(soc&&!fb&&isFB(soc))fb=soc; const phoneCell=get(cols,phoneIdx); const phone=first(phoneCell)==='N/A'?'':first(phoneCell); const email=get(cols,emailIdx); const keys=[]; if(phone&&pk(phone))keys.push('p:'+pk(phone)); if(email)keys.push('e:'+email.toLowerCase()); if(name&&business)keys.push('nb:'+(name+'|'+business).toLowerCase()); if(keys.some(k=>seen.has(k))){skipped++;continue;} keys.forEach(k=>seen.add(k)); const c={id:Date.now()+i,name:name,business:business,industry:get(cols,indIdx),phone:phone,email:email,website:website,instagram:ig,facebook:fb,city:get(cols,cityIdx),source:get(cols,srcIdx),notes:get(cols,noteIdx),issues:[],assessment:{},stage:'new',status:'active',log:[],created_at:new Date().toISOString(),created_by:getMe()}; leads.unshift(c); newOnes.push(c); }
+  lsSet('leads',leads); allLeads=leads; renderAll(); document.getElementById('import-box').style.display='none'; toast(newOnes.length+' imported'+(skipped?' · '+skipped+' dup skipped':''));
+  if(newOnes.length){ setSync('syncing'); Promise.all(newOnes.map(c=>{ c.workspace_id=currentWorkspace.id; c.updated_at=new Date().toISOString(); return sbFetch('/rest/v1/mbm_contacts',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(safeLead(c))}).then(r=>r.ok).catch(()=>false); })).then(oks=>setSync(oks.every(Boolean)?'ok':'err')); }
+}
+
+// ══════════════ SETTINGS ══════════════
+function renderSettings(){ document.getElementById('me-name').value=getMe(); document.getElementById('set-booking').value=getBooking(); document.getElementById('set-phone').value=getPhone(); document.getElementById('set-gv').value=getGV(); document.getElementById('set-method').value=getCallMethod(); document.getElementById('set-gvacct').value=getGVAcct(); { const gh=document.getElementById('gvacct-hint'); if(gh) gh.textContent=getGVAcct(); } document.getElementById('set-ws').textContent=currentWorkspace.name; document.getElementById('set-count').textContent=allLeads.length; }
+function resyncFromCloud(){ if(!confirm('Reset this device and reload fresh from the cloud? Your cloud data is safe.')) return; try{ localStorage.removeItem(getWSKey('leads')); localStorage.removeItem(getWSKey('known_ids')); }catch{} toast('Reloading…'); setTimeout(()=>location.reload(),600); }
+// Export leads as a Google Contacts CSV so Google Voice shows names on calls/texts.
+function exportGoogleContacts(){
+  const rows=[['Name','Given Name','Family Name','Phone 1 - Value','E-mail 1 - Value','Organization Name','Notes']];
+  (allLeads||[]).forEach(c=>{ if(!c.phone) return; const disp=c.business||c.name||'Lead'; const parts=(c.name||'').trim().split(/\s+/); rows.push([disp,parts[0]||'',parts.slice(1).join(' '),c.phone,c.email||'',c.business||'','MBM lead'+(c.industry?' · '+c.industry:'')]); });
+  if(rows.length<2){ toast('No leads with phone numbers to export'); return; }
+  const csv=rows.map(r=>r.map(f=>'"'+String(f==null?'':f).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='mbm-google-contacts.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast((rows.length-1)+' contacts exported — import at contacts.google.com');
+}
+
+// ══════════════ HELPERS ══════════════
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function normUrl(u){ if(!u) return ''; u=String(u).trim(); if(/^https?:\/\//i.test(u)) return u; return 'https://'+u.replace(/^\/+/,''); }
+function igUrl(h){ if(!h) return ''; h=String(h).trim(); if(/^https?:\/\//i.test(h)) return h; if(/instagram\.com/i.test(h)) return 'https://'+h.replace(/^\/+/,''); return 'https://instagram.com/'+h.replace(/^@+/,''); }
+function fbUrl(f){ if(!f) return ''; f=String(f).trim(); if(/^https?:\/\//i.test(f)) return f; if(/facebook\.com|fb\.com/i.test(f)) return 'https://'+f.replace(/^\/+/,''); return 'https://facebook.com/'+f.replace(/^\/+/,''); }
+function openModal(id){ document.getElementById(id).classList.add('show'); document.body.style.overflow='hidden'; }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); if(id==='profile-modal') currentProfileId=null; if(!document.querySelector('.modal-bg.show')) document.body.style.overflow=''; }
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) closeModal(m.id); }));
+
+// ══════════════ MIGRATION ══════════════
+// Old CRM used different stage/status names — map them onto the new pipeline so
+// existing cloud leads land in the right columns.
+const STAGE_MIGRATE={prospect:'new',close:'proposal',conversation:'booked',won:'sprint',client:'partner'};
+function normalizeLead(c){
+  if(c.status==='no'){ c.stage='lost'; c.status='active'; }
+  if(STAGE_MIGRATE[c.stage]) c.stage=STAGE_MIGRATE[c.stage];
+  if(!STAGE_MAP[c.stage]) c.stage='new';
+  if(!c.assessment) c.assessment={};
+  if(!c.status) c.status='active';
+  return c;
+}
+function normalizeLeads(list){ (list||[]).forEach(normalizeLead); return list; }
+
+// ══════════════ INIT ══════════════
+async function init(){ setSync('syncing'); allLeads=normalizeLeads(lsGet('leads')||[]); renderDashboard(); allLeads=normalizeLeads(await getLeads()); lsSet('leads',allLeads); renderAll(); }
+init();
+</script>
+</body>
+</html>
